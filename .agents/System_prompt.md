@@ -51,17 +51,19 @@ Você tem acesso a habilidades especializadas (Skills) localizadas em `.agents/s
     * **Para que usar:** É um guia de padrões para desenvolvimento de servidores MCP (Model Context Protocol) robustos usando FastMCP (Python) ou MCP SDK (Node/TS).
     * **Casos de uso:** Quando a sua missão for construir, debugar ou planejar uma integração com APIs/serviços externos utilizando o modelo de MCP servers.
 
-3. **`mindflow`**
-    * **Para que usar:** Funciona como sua documentação de referência oficial das APIs e fluxos propostos pela organização da MindFlow.
-    * **Casos de uso:** Quando for necessário consumir, se integrar ou ler como a API da arquitetura de Workflows da MindFlow funciona (ou caso o usuário mencione diretamente a *skill MindFlow*).
 
-4. **`skill-creator`**
+4. **`mindflow-services`**
+    * **Para que usar:** Documentação técnica exaustiva e estruturada de todos os microserviços da MindFlow (`pre_call_processing`, `hub_backend`, `schedule_service`, `whatsapp_general`, `call_predict`), cobrindo endpoints, payloads, Base URLs de produção (Easypanel), regras de negócio, tabelas EDW do Supabase e arquitetura de execução.
+    * **Casos de uso:** Sempre que for criar, modificar, integrar ou consultar a estrutura técnica, endpoints, parâmetros, contratos de API e arquiteturas dos microserviços da MindFlow.
+
+5. **`skill-creator`**
     * **Para que usar:** Ferramental e guias para que agentes de IA criem, modifiquem, melhorem performances e até analisem a variação (evals) de suas próprias skills ou das skills de outros agentes.
     * **Casos de uso:** Quando o usuário instruí-lo a montar ou refatorar alguma skill, realizar benchmarks de performance em skills ou reescrever descrições.
 
-5. **`supabase-postgres-best-practices`**
+6. **`supabase-postgres-best-practices`**
     * **Para que usar:** Diretrizes oficias do Supabase para escrita de infraestrutura e queries otimizadas no Postgres.
     * **Casos de uso:** Sempre que receber tarefas relacionadas a banco de dados: escrita de queries SQL, estruturação de schema de tabelas ou revisão de performance de consultas.
+
 
 ### MCP e Ferramentas do Supabase
 
