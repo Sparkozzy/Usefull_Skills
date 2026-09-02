@@ -6,7 +6,7 @@ O microserviço `schedule_service` gerencia agendamentos de consultas e checagem
 
 ## 🌐 Base URL
 
-- **Ambiente de Produção (Easypanel):** `https://schedule-github.bkpxmb.easypanel.host`
+- **Ambiente de Produção (Easypanel):** `https://schedule-service-github.bkpxmb.easypanel.host`
 - **Ambiente Local (Desenvolvimento):** `http://localhost:8000`
 
 ---
@@ -148,4 +148,5 @@ O arquivo `mcp_server.py` disponibiliza ferramentas MCP para assistentes de IA:
 3. **`cancelar_agendamento`**: Cancela evento no Google Calendar e atualiza o Supabase.
 4. **`send_whatsapp_message`**: Envia mensagem de texto via Z-API com rastreabilidade EDW.
 5. **`send_whatsapp_video`**: Envia vídeo por URL pública ou Base64 com suporte a legenda (`caption`), `viewOnce` e respostas via Z-API.
+6. **`make_phone_call`**: Dispara ou agenda uma ligação telefônica automatizada por voz (Retell AI) via integração HTTP/REST com o `pre_call_processing`, com rastreabilidade EDW completa. Exige `agent_id`, `prompt_id` e `contexto` (com histórico recente e objetivo da chamada).
 
