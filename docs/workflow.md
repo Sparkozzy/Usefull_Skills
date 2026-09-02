@@ -36,7 +36,11 @@ Os seguintes passos (nós) formam o workflow `whatsapp_flow`:
 
 ### 6. `whatsapp_flow_process_media`
 - **Descrição**: Processamento e classificação do conteúdo da mensagem recebida.
-- **Lógica**: Classifica o tipo da mensagem (TEXTO, ÁUDIO, IMAGEM, PDF, STICKER, VÍDEO). Em caso de áudio, chama a API da OpenAI (Whisper) para transcrever o áudio em texto público. Retorna o texto extraído/processado. Se for outro tipo de mídia (imagem, pdf, sticker, vídeo), retorna erro nesta etapa inicial.
+- **Lógica**: Classifica o tipo da mensagem (TEXTO, ÁUDIO, IMAGEM, PDF, STICKER, VÍDEO).
+  - Em caso de **ÁUDIO**: Chama a API da OpenAI (Whisper) para transcrever o áudio em texto.
+  - Em caso de **IMAGEM**: Chama a API da OpenAI (GPT-4o-mini Vision) para analisar a imagem, realizando OCR (leitura de documentos/telas/comprovantes) e descrevendo objetivamente o conteúdo visual, combinando-o com qualquer legenda enviada. O texto interpretado é retornado para inserção no buffer.
+  - Se for outro tipo de mídia não suportado (PDF, sticker, vídeo), retorna erro nesta etapa inicial.
+
 
 ### 7. `whatsapp_flow_buffer_message`
 - **Descrição**: Persistência da mensagem na lista temporária no Redis para de-bouncing.

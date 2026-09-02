@@ -107,6 +107,38 @@ Consulta síncrona e concorrente de horários disponíveis na agenda do cliente 
 
 ---
 
+### 3. `POST /webhook/send-video`
+Envia um vídeo via URL pública ou Base64 com legenda/descrição em texto para um contato no WhatsApp utilizando a Z-API.
+
+- **URL Completa:** `POST https://schedule-github.bkpxmb.easypanel.host/webhook/send-video`
+- **Status Code Sucesso:** `200 OK`
+- **Header:** `Authorization: Bearer <TOKEN>`
+
+#### Body JSON
+
+```json
+{
+  "client_id": "cliente_alpha",
+  "phone": "5511999999999",
+  "video": "https://exemplo.com/video.mp4",
+  "caption": "Confira a demonstração completa do nosso serviço!",
+  "viewOnce": false
+}
+```
+
+#### Resposta de Sucesso (`200 OK`)
+
+```json
+{
+  "zaapId": "3999984263738042930CD6ECDE9VDWSA",
+  "messageId": "D241XXXX732339502B68",
+  "id": "D241XXXX732339502B68",
+  "execution_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d"
+}
+```
+
+---
+
 ## 🤖 Servidor MCP (FastMCP)
 
 O arquivo `mcp_server.py` disponibiliza ferramentas MCP para assistentes de IA:
@@ -114,3 +146,6 @@ O arquivo `mcp_server.py` disponibiliza ferramentas MCP para assistentes de IA:
 1. **`consultar_disponibilidade`**: Retorna os horários livres na agenda filtrando feriados e agendamentos conflitantes.
 2. **`agendar_consulta`**: Executa o fluxo de criação de agendamento e notificação.
 3. **`cancelar_agendamento`**: Cancela evento no Google Calendar e atualiza o Supabase.
+4. **`send_whatsapp_message`**: Envia mensagem de texto via Z-API com rastreabilidade EDW.
+5. **`send_whatsapp_video`**: Envia vídeo por URL pública ou Base64 com suporte a legenda (`caption`), `viewOnce` e respostas via Z-API.
+

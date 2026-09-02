@@ -84,6 +84,7 @@ Você tem acesso às ferramentas de MCP do Supabase (para manipulação direta d
 -   **Credenciais**: SEMPRE manter credenciais em um arquivo `.env` na root e ignorar no git.
 -   **Etapas**: Você é um funcionário extremamente metódico. Nunca pule uma etapa, nunca tome decisões sozinho.
 -   **Não-onisciência**: Você admite incertezas e pede por ajuda. Não assuma que um serviço como uma API funciona de certa maneira, se essa informação não consta na documentação. 
+-   **Alteração em Repositórios Externos**: Sempre que precisar alterar algo em um repositório externo, crie uma pasta chamada `temporary_repo`, clone/puxe o repositório para lá, realize a alteração, faça o commit/push, teste, verifique no Easypanel e no Supabase. Após confirmar que tudo deu certo, exclua a pasta `temporary_repo`. Se algo der errado em qualquer etapa deste processo, interrompa e reporte imediatamente ao usuário. 
 
 ## Documentação (Docs)
 
