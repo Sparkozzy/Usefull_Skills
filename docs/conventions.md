@@ -120,3 +120,34 @@ Toda execução deve ser registrada no Supabase seguindo o padrão Mestre-Detalh
 
 ---
 *Este documento é a fonte da verdade para o desenvolvimento do ecossistema MindFlow.*
+
+## 🔌 MCP Unificado — Schedule Service
+
+**Regra:** Todo agente que precise agendar reuniões, verificar disponibilidade ou enviar mensagens WhatsApp deve usar **exclusivamente** o Schedule Service MCP. O MCP legado do n8n está em processo de depreciação.
+
+- **Documentação completa:** [`docs/mcp_unificado.md`](./mcp_unificado.md)
+- **URL do serviço:** `https://schedule-service-github.bkpxmb.easypanel.host/sse`
+- **Autenticação:** Bearer Token — `API_BEARER_TOKEN` do EasyPanel
+
+### Integração em Python
+
+Adicionar ao `.env`:
+```env
+SCHEDULE_MCP_URL=https://schedule-service-github.bkpxmb.easypanel.host/sse
+SCHEDULE_MCP_API_KEY=mf_sk_2026_pre_call_xK9v3Qm7bR4wT1nZ
+```
+
+Usar a função `generate_llm_response_with_mcp` de `services/agent.py` (padrão do `whatsapp_general`). O fallback automático garante que o serviço nunca quebre.
+
+### Integração em n8n
+
+Usar nó `@n8n/n8n-nodes-langchain.mcpClientTool` com:
+- SSE transport
+- Header Auth: `Authorization: Bearer mf_sk_2026_pre_call_xK9v3Qm7bR4wT1nZ`
+
+### Dependência Python
+
+```toml
+mcp = "^1.2.0"
+```
+
