@@ -66,6 +66,26 @@ Endpoint padrão para recebimento de webhooks enviados pela **Z-API**.
 }
 ```
 
+#### Payload de Entrada Exemplo (Z-API - PDF / Documento)
+
+```json
+{
+  "eventType": "MESSAGE_RECEIVED",
+  "content": {
+    "type": "DOCUMENT",
+    "text": "Segue comprovante em anexo",
+    "details": {
+      "sender_from": "5511999998888",
+      "file": {
+        "publicUrl": "https://z-api.io/media/fatura.pdf",
+        "fileName": "fatura.pdf"
+      }
+    }
+  }
+}
+```
+> **Processamento de PDF:** A 1ª página do PDF é baixada em memória e resumida/classificada pelo modelo `gpt-4o-mini`, repassando o resultado no buffer para o agente principal.
+
 #### Resposta do Debounce (Se for a thread vencedora)
 
 ```json
