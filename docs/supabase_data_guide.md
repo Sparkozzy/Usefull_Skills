@@ -47,7 +47,7 @@ Gerencia a configuração global dos clientes cadastrados e credenciais de integ
 
 | Coluna | Tipo | Obrigatório | Descrição |
 |---|---|---|---|
-| `client_id` | `text` | ✅ | PK — Identificador único do cliente (ex: `cliente-a`). |
+| `client_id` | `text` | ✅ | PK — Identificador único do cliente (ex: `1`, `2`). |
 | `client_name` | `text` | ✅ | Nome amigável do cliente. |
 | `supabase_url` | `text` | ✅ | Endpoint HTTP do Supabase privado do cliente. |
 | `supabase_service_key` | `text` | ✅ | Chave privada service_role para escritas administrativas. |
@@ -59,6 +59,12 @@ Gerencia a configuração global dos clientes cadastrados e credenciais de integ
 | `zapi_group_id` | `text` | ❌ | ID do grupo do WhatsApp para notificações internas. |
 | `crm_config` | `jsonb` | ❌ | Configurações do CRM (Webhook). Ex: `{ "crm_type": "webhook", "webhook_url": "...", "headers": { "Authorization": "Bearer token" } }`. |
 | `voice_id` | `text` | ❌ | ID da voz usada no OpenAI TTS (ex: `nova`, `alloy`, `echo`, `fable`, `onyx`, `shimmer`). Padrão: `'nova'`. |
+| `prompt_id` | `int8` | ❌ | ID do prompt principal atribuído ao cliente na tabela `Prompts`. |
+| `mindflow_api_token` | `text` | ✅ | Token de autenticação Bearer/Query para chamadas de API multi-tenant. |
+| `llm_model` | `text` | ❌ | Modelo LLM principal configurado para o cliente (ex: `gpt-4.1`). |
+| `llm_temperature` | `float8` | ❌ | Temperatura do modelo principal (ex: `0.8`). |
+| `fallback_llm_model` | `text` | ❌ | Modelo de fallback em caso de degradação da OpenAI (ex: `gpt-4o-mini`). |
+| `fallback_llm_temperature` | `float8` | ❌ | Temperatura do modelo de fallback. |
 
 ---
 
