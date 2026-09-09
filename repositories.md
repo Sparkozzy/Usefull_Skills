@@ -2,6 +2,7 @@ Todos os repositórios abaixo fazem parte da estrutura da MindFlow. Todos estão
 
 
 - pré-call-processing: https://github.com/Sparkozzy/pre_call_processing.git
+- post-call-processing: https://github.com/Sparkozzy/post-call-processing.git
 - hub_backend: https://github.com/Sparkozzy/hub_backend.git
 - hub_frontend: https://github.com/Sparkozzy/hub.git
 - schedule_service: https://github.com/Sparkozzy/schedule_service.git
