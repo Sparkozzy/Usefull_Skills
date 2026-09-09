@@ -15,20 +15,24 @@ graph TD
     WF1 -->|Valida Flag Call_predict| RouteDecision{"Call_predict Enabled?"}
     
     RouteDecision -->|True| CP["call_predict API"]
-    RouteDecision -->|False| WF2["2. post_call_analysis_ai"]
+    RouteDecision -->|False| CheckEvent{"n8n Event & Transcript Check"}
+    
+    CheckEvent -->|call_ended / Voicemail / Sem Transcrição| WF3["3. post_call_retentativa"]
+    CheckEvent -->|call_analyzed com Transcrição| WF2["2. post_call_analysis_ai"]
     
     WF2 -->|1. History Check (DISTINCT call_id)| DB_CALLS
     WF2 -->|2. Few-shot RAG| MasterRAG["documents_fil (Master DB)"]
     WF2 -->|3. Decisão IA (gpt-4.1-nano)| AgentLLM["Agente de Decisão"]
     
-    AgentLLM -->|Ligar? == True| WF3["3. post_call_retentativa"]
+    AgentLLM -->|Ligar? == True| PCP_DIRECT["pre_call_processing API (Direct Dispatch)"]
     AgentLLM -->|Ligar? == False| EndNoCall["Fim (min = 0)"]
     
     WF3 -->|Checa Agendamento| DB_AGEND["agendamentos (Tenant DB)"]
     WF3 -->|Valida Limite 1h| HourlyCheck{"Limite 1h?"}
     HourlyCheck -->|Liberado| PCP["pre_call_processing API"]
     
-    PCP -->|Disparo de Chamada| Retell["Retell AI API"]
+    PCP_DIRECT -->|Disparo com Contexto & Prompt_id| Retell["Retell AI API"]
+    PCP -->|Disparo de Chamada| Retell
     
     subgraph AUDITORIA_EDW["Camada EDW"]
         WF1 -->|Mestre/Detalhe| EDW_M["workflow_executions"]
@@ -41,20 +45,22 @@ graph TD
 
 ## ⚡ Workflows Detalhados
 
-### 1. Workflow: `post_call_webhook_ligacao` (Ingestão & Roteamento Inicial)
+### 1. Workflow: `post_call_webhook_ligacao` (Ingestão & Roteamento Inicial n8n)
 
-- **Propósito:** Ponto de entrada mestre. Responsável pela ingestão imediata em tempo real e encaminhamento.
+- **Propósito:** Ponto de entrada mestre. Responsável pela ingestão imediata em tempo real e encaminhamento seguindo as regras oficiais do n8n.
 - **Passos (Nodes):**
   1. `raw_ingestion`: Grava/Atualiza evento bruto em `Retell_calls_Mindflow` (tenant DB).
-  2. `route_decision`: Checa a flag `call_predict_enabled` / `Call_predict` em `client_configurations` (Supabase Master).
-     - Se `True`: encaminha para o microsserviço `call_predict`.
-     - Se `False`: encaminha para `post_call_analysis_ai`.
+  2. `route_decision`: 
+     - Checa a flag `call_predict_enabled` / `Call_predict` em `client_configurations` (Supabase Master). Se `True`: encaminha para o microsserviço `call_predict`.
+     - **Regras de Roteamento n8n:**
+       - Se `event == "call_ended"` (não atendimento/recusa) OU `disconnection_reason == "voicemail_reached"` OU a chamada não possui transcrição (`transcript == ""`): encaminha **diretamente para `post_call_retentativa`**.
+       - Se `event == "call_analyzed"` E possui transcrição válida: encaminha para `post_call_analysis_ai`.
 
 ---
 
-### 2. Workflow: `post_call_analysis_ai` (Agente de Decisão por IA & RAG)
+### 2. Workflow: `post_call_analysis_ai` (Agente de Decisão por IA & Direct Dispatch)
 
-- **Propósito:** Processamento de inteligência pós-chamada. Um agente autônomo baseado em LLM decide se deve ligar para o lead e em quantos minutos.
+- **Propósito:** Processamento de inteligência pós-chamada com disparo direto ao `pre_call_processing`. Um agente autônomo baseado em LLM decide se deve ligar para o lead e em quantos minutos.
 - **Passos (Nodes):**
   1. `history_check`: Consulta chamadas anteriores na `Retell_calls_Mindflow` do tenant.
      - **Regra de Contagem de Ligações:** A contagem de tentativas passadas é realizada agrupando por `call_id`s **únicos** (`count(DISTINCT call_id)` onde `call_id` não é nulo).
@@ -71,18 +77,19 @@ graph TD
        - `context` (string)
        - `drop_state` (`Abertura`, `Discovery`, `Pitch`, `Close`, `Nulo`)
   4. `update_call_record`: Atualiza `Retell_calls_Mindflow` com transcrição sanitizada, resumo para CRM e métricas de custo.
-  5. `decision_routing`: Se `Ligar? == true`, aciona a `post_call_retentativa` passando os `min` minutos recomendados.
+  5. `decision_routing`:
+     - Se `Ligar? == true`, encaminha a decisão **DIRETAMENTE para a API do microsserviço `pre_call_processing`** (`POST /webhook` com `Prompt_id`, `agent_id`, `numero` e `contexto`), sem passar pelo workflow de `retentativa`.
 
 ---
 
-### 3. Workflow: `post_call_retentativa` (Execução de Agendamento e Rediscagem)
+### 3. Workflow: `post_call_retentativa` (Execução de Agendamento e Rediscagem de Não-Atendimentos)
 
-- **Propósito:** Aplicação de regras de retentativa e disparo de rediscagem.
+- **Propósito:** Aplicação de regras de retentativa e disparo de rediscagem para chamadas não atendidas.
 - **⚠️ Tabela Descontinuada:** A tabela `Retell_Leads_Midflow` foi oficialmente descontinuada e **não é consultada nem atualizada**.
 - **Passos (Nodes):**
   1. `check_meeting_scheduled`: Consulta exclusivamente a tabela `agendamentos` (tenant DB). Se o lead possui reunião com `status == 'agendado'`, aborta com `aborted_meeting_already_scheduled`.
   2. `check_hourly_limit`: Valida se o limite de ligações por hora para o número foi atingido.
-  3. `calculate_wait_window`: Aguarda os `min` minutos recomendados pelo Agente e ajusta o disparo para a janela comercial válida de Brasília (`America/Sao_Paulo`, 09:00–18:00, Seg-Sex).
+  3. `calculate_wait_window`: Aguarda o delay configurado e ajusta o disparo para a janela comercial válida de Brasília (`America/Sao_Paulo`, 09:00–18:00, Seg-Sex).
   4. `build_pre_call_payload`: Monta o payload estruturado para o microsserviço de disparo.
   5. `dispatch_pre_call_service`:
      - ⚠️ **REGRA DE DISPARO:** O disparo é realizado via requisição POST HTTP para a API interna do microsserviço **`pre_call_processing`** (`PRE_CALL_PROCESSING_URL`). **Nunca chama a API externa da Retell AI diretamente**.
