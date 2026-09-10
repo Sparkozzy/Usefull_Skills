@@ -1,4 +1,4 @@
-﻿# MCP Unificado — Schedule Service (Mindflow)
+# MCP Unificado — Schedule Service (Mindflow)
 
 > **Fonte da Verdade.** Este documento descreve o servidor MCP centralizado da Mindflow que substitui o MCP legado do n8n para **todos os agentes** (WhatsApp, Ligação, Instagram SDR).
 > **URL Produção:** `https://schedule-service-github.bkpxmb.easypanel.host/sse`
@@ -100,17 +100,22 @@
 
 ---
 
-## Padrão de Integração — Python (whatsapp_general)
+## Padrão de Integração — Python (whatsapp_general) & Arquitetura Multi-MCP
 
-**Variáveis de ambiente obrigatórias:**
-```env
-SCHEDULE_MCP_URL=https://schedule-service-github.bkpxmb.easypanel.host/sse
-SCHEDULE_MCP_API_KEY=mf_sk_2026_pre_call_xK9v3Qm7bR4wT1nZ
+O `whatsapp_general` suporta **múltiplos MCPs dinâmicos por cliente** via Supabase Master:
+- A tabela `client_configurations` contém a coluna `mcp_urls` (`text[]`).
+- O worker lê a lista `mcp_urls` do cliente e utiliza a função `generate_llm_response_with_mcp` em `services/agent.py`.
+- Através da biblioteca `AsyncExitStack` (Python `contextlib`), o agente abre sessões SSE paralelas para **todas** as URLs configuradas (ex: `schedule_service` + MCPs customizados do cliente como o `n8n-mcp.mindflow-ia.com/mcp/mcp-kravi-iatize`), agregando as ferramentas e repassando o conjunto combinado ao modelo OpenAI (`gpt-4.1` / `gpt-4o`).
+
+**Configuração no Supabase Master (`client_configurations`):**
+```json
+"mcp_urls": [
+  "https://schedule-service-github.bkpxmb.easypanel.host/sse",
+  "https://n8n-mcp.mindflow-ia.com/mcp/mcp-kravi-iatize"
+]
 ```
 
-**Fallback automático:** Se as variáveis não existirem, o worker usa resposta simples sem MCP.
-
-A integração está em `services/agent.py` → função `generate_llm_response_with_mcp`.
+**Fallback automático:** Se `mcp_urls` não estiver preenchido ou falhar, o worker utiliza por padrão a URL do `schedule_service`.
 
 ---
 

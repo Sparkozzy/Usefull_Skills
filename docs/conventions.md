@@ -121,23 +121,29 @@ Toda execução deve ser registrada no Supabase seguindo o padrão Mestre-Detalh
 ---
 *Este documento é a fonte da verdade para o desenvolvimento do ecossistema MindFlow.*
 
-## 🔌 MCP Unificado — Schedule Service
+## 🔌 MCP Unificado & Arquitetura Multi-MCP por Cliente
 
-**Regra:** Todo agente que precise agendar reuniões, verificar disponibilidade ou enviar mensagens WhatsApp deve usar **exclusivamente** o Schedule Service MCP. O MCP legado do n8n está em processo de depreciação.
+**Regra:** O ecossistema suporta **roteamento dinâmico de múltiplos servidores MCP por cliente (tenant)** sem afetar outros clientes.
+- As URLs dos MCPs habilitados para um cliente ficam armazenadas no campo `mcp_urls` (`text[]`) da tabela `client_configurations` do Supabase Master.
+- **MCP Padrão (Unificado)**: `https://schedule-service-github.bkpxmb.easypanel.host/sse` (agendamento, verificação de horários e ligações).
+- **MCPs Específicos**: Clientes específicos (ex: Kravi) podem ter URLs MCP extras adicionadas ao seu array em `client_configurations` (ex: `https://n8n-mcp.mindflow-ia.com/mcp/mcp-kravi-iatize`).
 
 - **Documentação completa:** [`docs/mcp_unificado.md`](./mcp_unificado.md)
-- **URL do serviço:** `https://schedule-service-github.bkpxmb.easypanel.host/sse`
-- **Autenticação:** Bearer Token — `API_BEARER_TOKEN` do EasyPanel
 
-### Integração em Python
+### Integração em Python (`whatsapp_general`)
 
-Adicionar ao `.env`:
-```env
-SCHEDULE_MCP_URL=https://schedule-service-github.bkpxmb.easypanel.host/sse
-SCHEDULE_MCP_API_KEY=mf_sk_2026_pre_call_xK9v3Qm7bR4wT1nZ
+O worker do `whatsapp_general` lê `mcp_urls` do Supabase Master e utiliza `AsyncExitStack` na função `generate_llm_response_with_mcp` (`services/agent.py`) para conectar concorrentemente a **todos** os servidores MCP configurados para aquele tenant, agregando suas ferramentas para a decisão do LLM:
+
+```python
+# O worker carrega as URLs do cliente do Supabase Master
+client_mcp_urls = config.get("mcp_urls") or ["https://schedule-service-github.bkpxmb.easypanel.host/sse"]
+
+# generate_llm_response_with_mcp conecta concorrentemente a todas as URLs via AsyncExitStack
+res = await generate_llm_response_with_mcp(
+    openai_client, system_prompt, chat_history, user_message,
+    mcp_urls=client_mcp_urls, model=llm_model, temperature=llm_temperature
+)
 ```
-
-Usar a função `generate_llm_response_with_mcp` de `services/agent.py` (padrão do `whatsapp_general`). O fallback automático garante que o serviço nunca quebre.
 
 ### Integração em n8n
 

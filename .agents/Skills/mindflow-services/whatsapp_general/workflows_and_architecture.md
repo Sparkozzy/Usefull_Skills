@@ -73,3 +73,7 @@ flowchart TD
 
 5. **Memória de Conversa Persistente (`n8n_chat_histories`):**
    - As últimas 10 interações são recuperadas para compor o contexto do chat. Ao final do processamento, tanto a mensagem concatenada do usuário (`human`) quanto a resposta gerada (`ai`) são persistidas com timestamps UTC.
+
+6. **Suporte Multi-MCP Dinâmico por Tenant (`mcp_urls`):**
+   - No worker (`call_agent_llm`), a lista `mcp_urls` (`text[]`) é lida da tabela `client_configurations` do Supabase Master para aquele `client_id`.
+   - Utilizando `AsyncExitStack` em `generate_llm_response_with_mcp` (`services/agent.py`), o worker conecta simultaneamente a todas as URLs dos MCPs ativos (ex: `schedule_service` + MCP customizado do cliente), combina as ferramentas expostas e repassa o conjunto de funções para o modelo OpenAI (`gpt-4.1` / `gpt-4o`).
