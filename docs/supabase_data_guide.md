@@ -65,6 +65,7 @@ Gerencia a configuração global dos clientes cadastrados e credenciais de integ
 | `llm_temperature` | `float8` | ❌ | Temperatura do modelo principal (ex: `0.8`). |
 | `fallback_llm_model` | `text` | ❌ | Modelo de fallback em caso de degradação da OpenAI (ex: `gpt-4o-mini`). |
 | `fallback_llm_temperature` | `float8` | ❌ | Temperatura do modelo de fallback. |
+| `mcp_urls` | `text[]` ou `jsonb` | ❌ | Lista de URLs dos servidores MCP habilitados para o cliente (ex: `["https://schedule-github.bkpxmb.easypanel.host/mcp", "https://kravi-mcp..."]`). Padrão: URL do `schedule_service`. |
 
 ---
 
