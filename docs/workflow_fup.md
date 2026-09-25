@@ -8,19 +8,20 @@ Automatizar e orquestrar as decisões de Follow-up (FUP) para leads em atendimen
 
 ## 2. Ações Possíveis de Saída (JSON do Agente FUP)
 
-O agente de IA retorna um JSON estruturado obrigatoriamente em uma das 4 ações homologadas:
+O agente de IA retorna um JSON estruturado obrigatoriamente em uma das 5 ações homologadas:
 1. `agendar_mensagem`: Agendamento de mensagem de texto conversacional para reengajamento do lead.
-2. `figurinha`: Envio de figurinha (sticker) de follow-up/reação.
-3. `ligawhats`: Disparo de chamada de voz/áudio via WhatsApp.
-4. `ligacao`: Disparo de ligação telefônica convencional (integração Retell AI / `pre_call_processing`).
+2. `audio`: Geração de áudio falado humanizado (OpenAI TTS `tts-1-hd` / Fish Audio) e envio via Z-API.
+3. `figurinha`: Envio de figurinha (sticker) de follow-up/reação.
+4. `ligawhats`: Disparo de chamada de voz/áudio via WhatsApp.
+5. `ligacao`: Disparo de ligação telefônica convencional (integração Retell AI / `pre_call_processing`).
 
 ### Formato do JSON do Agente (Contrato Estrito)
 
 ```json
 {
-  "acao": "agendar_mensagem",
+  "acao": "audio",
   "quando_executar": "2026-09-25T15:30:00-03:00",
-  "conteudo": "Olá {{ customer_name }}, conseguiu avaliar a proposta que combinamos?",
+  "conteudo": "Oi {{ customer_name }}, tudo bem? Passando rapidinho para ver se você conseguiu dar uma olhada na nossa conversa!",
   "justificativa": "Lead parou de responder há mais de 4 horas em horário comercial."
 }
 ```
@@ -34,7 +35,7 @@ Os passos seguem a convenção de nomenclatura `{workflow_name}_{OQF}` e são ex
 ### 1. `fup_flow_fetch_prompt_and_config`
 - **Descrição**: Leitura das configurações do cliente e do template de prompt de FUP no Supabase.
 - **Lógica**:
-  - Lê a linha do cliente em `client_configurations` no Supabase Master buscando `prompt_id`, flags de permissão (`fup`, `fup_ligawhats`, `fup_ligacao`, `quantidade_fup_whats`, `fup_fds`) e credenciais do banco isolado do cliente.
+  - Lê a linha do cliente em `client_configurations` no Supabase Master buscando `prompt_id`, flags de permissão (`fup`, `can_send_fup_audio`, `fup_ligawhats`, `fup_ligacao`, `quantidade_fup_whats`, `fup_fds`) e credenciais do banco isolado do cliente.
   - Com o `prompt_id`, busca o `Prompt_Text` na tabela `Prompts` (Supabase Master / Cliente).
   - Recupera os dados cadastrais do lead na tabela `Leads_Mindflow` e o histórico recente em `n8n_chat_histories`.
 
@@ -49,8 +50,10 @@ Os passos seguem a convenção de nomenclatura `{workflow_name}_{OQF}` e são ex
 - **Descrição**: Validação das regras de negócio e permissões de uso do cliente em `client_configurations`.
 - **Lógica**:
   - Se `fup == False`: Aborta o agendamento com status `SUCCESS` e outcome `fup_disabled_for_client`.
-  - Se `acao == "ligawhats"` e `fup_ligawhats == False`: Bloqueia a ação e efetua fallback automático para `agendar_mensagem`.
-  - Se `acao == "ligacao"` e `fup_ligacao == False`: Bloqueia a ação e efetua fallback automático para `agendar_mensagem`.
+  - Se `acao == "audio"` e `can_send_fup_audio == False`: Bloqueia o áudio e efetua fallback para `agendar_mensagem` (texto).
+  - Se `acao == "ligawhats"` e `fup_ligawhats == False`: Bloqueia a ação e efetua fallback para `agendar_mensagem`.
+  - Se `acao == "ligacao"` e `fup_ligacao == False`: Bloqueia a ação e efetua fallback para `agendar_mensagem`.
+  - Valida limite de tentativas (`quantidade_fup_whats`) contra histórico de FUPs já executados para o lead.
 
 ### 4. `fup_flow_schedule_action`
 - **Descrição**: Transformação da decisão em agendamento persistente no Redis via ARQ (`_defer_until`).
