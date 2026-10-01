@@ -100,6 +100,29 @@
 
 ---
 
+### 4. `send_whatsapp_document` — Enviar Documento (PDF) WhatsApp
+
+**Quando usar:** Para enviar propostas, comprovantes, contratos ou qualquer arquivo via WhatsApp Z-API a partir de uma URL pública.
+
+**Conceito Z-API:**
+- Utiliza o endpoint `POST /instances/{instanceId}/token/{token}/send-document/{extension}`.
+- Funciona via URL pública (`document_url`).
+
+**Parâmetros:**
+
+| Parâmetro | Obrigatório | Tipo | Descrição |
+|---|---|---|---|
+| `client_id` | Sim | string | Identificador do cliente |
+| `phone` | Sim | string | Telefone com DDI/DDD (ex: `+5548996027108` ou `5548996027108`) |
+| `document_url` | Sim | string | Link HTTP/HTTPS público do documento |
+| `extension` | Não | string | Extensão do arquivo (padrão: `"pdf"`, aceita `"docx"`, `"xlsx"`, etc.) |
+| `fileName` | Não | string | Nome do arquivo exibido no WhatsApp (ex: `"Proposta_Comercial.pdf"`) |
+| `caption` | Não | string | Legenda opcional acompanhando o documento |
+| `execution_id` | Não | string | UUID da execução para rastreabilidade EDW |
+| `agent_id` | Não | string | ID do agente para rastreabilidade |
+
+---
+
 ## Padrão de Integração — Python (whatsapp_general) & Arquitetura Multi-MCP
 
 O `whatsapp_general` suporta **múltiplos MCPs dinâmicos por cliente** via Supabase Master:
