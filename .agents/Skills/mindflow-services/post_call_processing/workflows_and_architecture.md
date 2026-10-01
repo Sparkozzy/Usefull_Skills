@@ -89,7 +89,7 @@ graph TD
 - **Passos (Nodes):**
   1. `check_meeting_scheduled`: Consulta exclusivamente a tabela `agendamentos` (tenant DB). Se o lead possui reunião com `status == 'agendado'`, aborta com `aborted_meeting_already_scheduled`.
   2. `check_hourly_limit`: Valida se o limite de ligações por hora para o número foi atingido.
-  3. `calculate_wait_window`: Aguarda o delay configurado e ajusta o disparo para a janela comercial válida de Brasília (`America/Sao_Paulo`, 09:00–18:00, Seg-Sex).
+  3. `calculate_wait_window`: Aguarda o delay configurado e ajusta o disparo para a janela comercial válida de Brasília (`America/Sao_Paulo`, 09:00–21:00, Seg-Sex).
   4. `build_pre_call_payload`: Monta o payload estruturado para o microsserviço de disparo.
   5. `dispatch_pre_call_service`:
      - ⚠️ **REGRA DE DISPARO:** O disparo é realizado via requisição POST HTTP para a API interna do microsserviço **`pre_call_processing`** (`PRE_CALL_PROCESSING_URL`). **Nunca chama a API externa da Retell AI diretamente**.

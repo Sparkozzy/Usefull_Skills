@@ -60,7 +60,7 @@ flowchart TD
 ## ⚡ Regras de Negócio e Funcionalidades Chave
 
 1. **Transcrição Automática de Áudio:**
-   - Mensagens de voz recebidas no formato `AUDIO` da Z-API têm a URL do arquivo extraída e enviada ao modelo **OpenAI Whisper** (`transcribe_audio`), convertendo a fala do lead em texto antes de entrar no buffer do Redis.
+   - Mensagens de voz recebidas no formato `AUDIO` da Z-API têm a URL do arquivo extraída e enviada ao modelo **OpenAI Whisper** (`transcribe_audio`), convertendo a fala do lead em texto e prefixando com `Audio: {texto}` antes de entrar no buffer do Redis.
 
 2. **Verificação de Blacklist:**
    - Antes de consumir tokens de IA, a tabela `Blacklist_Mindflow` é consultada. Se o número estiver bloqueado, a execução é encerrada com status `SUCCESS` e resultado `ignored_blacklisted`.

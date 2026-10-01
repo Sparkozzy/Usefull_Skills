@@ -57,7 +57,12 @@ Gerencia a configuração global dos clientes cadastrados e credenciais de integ
 | `zapi_client_token` | `text` | ❌ | Token de autenticação da Z-API (usado na URL). |
 | `zapi_security_token` | `text` | ❌ | Token de segurança da Z-API (enviado no header Client-Token). |
 | `zapi_group_id` | `text` | ❌ | ID do grupo do WhatsApp para notificações internas. |
+| `whatsapp_phone_number` | `text` | ❌ | Número de WhatsApp da instância do cliente (`+55...`), usado como remetente. |
+| `agent_id_ligacao_whatsapp` | `text` | ❌ | ID do agente/prompt de voz atribuído ao cliente para ligações WhatsApp. |
 | `crm_config` | `jsonb` | ❌ | Configurações do CRM (Webhook). Ex: `{ "crm_type": "webhook", "webhook_url": "...", "headers": { "Authorization": "Bearer token" } }`. |
+
+
+
 | `voice_id` | `text` | ❌ | ID da voz usada no OpenAI TTS (ex: `nova`, `alloy`, `echo`, `fable`, `onyx`, `shimmer`). Padrão: `'nova'`. |
 | `prompt_id` | `int8` | ❌ | ID do prompt principal atribuído ao cliente na tabela `Prompts`. |
 | `mindflow_api_token` | `text` | ✅ | Token de autenticação Bearer/Query para chamadas de API multi-tenant. |

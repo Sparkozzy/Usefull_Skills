@@ -157,3 +157,10 @@ Usar nó `@n8n/n8n-nodes-langchain.mcpClientTool` com:
 mcp = "^1.2.0"
 ```
 
+## 🎙️ Tratamento de Áudios Transcritos (WhatsApp)
+
+- **Regra de Prefixamento:** Toda mensagem recebida no formato `AUDIO` (via Z-API ou CRM) e transcrita pelo OpenAI Whisper **DEVE** ter seu texto prefixado antes de entrar no buffer do Redis / ser enviado ao agente LLM.
+- **Formato Obrigatório:** `Audio: {texto_transcrito}` (padrão n8n).
+- **Objetivo:** Garantir que o agente conversacional reconheça que a entrada original veio por voz, permitindo contextualizar a resposta ou decidir gerar áudio via TTS.
+
+

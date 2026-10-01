@@ -7,7 +7,7 @@ O workflow **Retentativa Mindflow** é o mecanismo responsável por re-executar 
 O objetivo deste workflow é aplicar uma política inteligente e resiliente de retentativas:
 1. **Verificação de Agendamento Prévio:** Garante que o lead ainda não marcou reunião (consultando a tabela `Retell_Leads_Midflow`). Se a reunião já estiver marcada, a retentativa é cancelada imediatamente.
 2. **Limite de Tentativas Globais:** Impõe um teto máximo de **15 tentativas** de ligação por lead (consultando a tabela `Retell_calls_Mindflow`).
-3. **Respeito à Janela de Horário Comercial (BRT):** Avalia se o horário atual em Brasília (`America/Sao_Paulo`) está dentro da janela permitida (entre **09:00 e 19:00**). Se estiver fora da janela, o fluxo aguarda 1 hora em loop até entrar no horário comercial.
+3. **Respeito à Janela de Horário Comercial (BRT):** Avalia se o horário atual em Brasília (`America/Sao_Paulo`) está dentro da janela permitida (entre **09:00 e 21:00**). Se estiver fora da janela, o fluxo aguarda 1 hora em loop até entrar no horário comercial.
 4. **Construção de Prompt e Contexto Dinâmico:** Busca o prompt mestre na tabela `Prompts` (ID=1), sanitiza caracteres especiais e adiciona a instrução contextual: *"Você já tentou contato com esta pessoa e não obteve sucesso, não mencione isso no início da ligação, apenas se o usuário mencionar."*
 5. **Disparo da Chamada via API Retell:** Efetua uma requisição POST direta para a API da Retell AI (`https://api.retellai.com/v2/create-phone-call`).
 6. **Rastreabilidade e Contagem de Leads:** Atualiza a contagem de tentativas na tabela `Retell_Leads_Midflow` ou cria o registro caso o lead ainda não esteja cadastrado.
@@ -43,7 +43,7 @@ flowchart TD
     CT --> C15{"<15? (Tentativas totais < 15)"}
     
     C15 -->|NÃO| END_MAX[Fim - Limite de 15 tentativas atingido]
-    C15 -->|SIM| C1["Code1 (Valida Horário BRT 09:00 - 19:00)"]
+    C15 -->|SIM| C1["Code1 (Valida Horário BRT 09:00 - 21:00)"]
     
     C1 --> IF_HORA{"If2 (Dentro do horário?)"}
     
@@ -118,7 +118,7 @@ flowchart TD
   ```javascript
   const date = new Date(new Date().toLocaleString("en-US", { timeZone: "America/Sao_Paulo" }));
   const hours = date.getHours();
-  const resultado = (hours >= 9 && hours < 19) ? "Dentro do horário" : "Fora do horário";
+  const resultado = (hours >= 9 && hours < 21) ? "Dentro do horário" : "Fora do horário";
   return { json: { ...$json, dataHoraBrasilia, resultado } };
   ```
 - **Entradas:** `<15?` (TRUE).
