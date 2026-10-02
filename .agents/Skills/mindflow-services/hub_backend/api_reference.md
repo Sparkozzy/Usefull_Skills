@@ -6,7 +6,7 @@ O microserviço `hub_backend` fornece a API REST de Analytics Multi-Tenant da pl
 
 ## 🌐 Base URL
 
-- **Ambiente de Produção (Easypanel):** `https://hub-backend-github.bkpxmb.easypanel.host`
+- **Ambiente de Produção (Easypanel):** `https://hub-backend.bkpxmb.easypanel.host`
 - **Ambiente Local (Desenvolvimento):** `http://localhost:8000`
 
 ---
