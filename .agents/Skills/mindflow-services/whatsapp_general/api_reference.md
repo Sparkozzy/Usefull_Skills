@@ -131,6 +131,38 @@ Endpoint para receber mensagens enviadas via hub de CRM (`direction == "FROM_HUB
 
 ---
 
+### 3. `POST /webhook/whatsapp/fup/{client_id}`
+Endpoint para recepção e orquestração autônoma de Follow-up (FUP) sob demanda.
+
+- **URL Completa:** `POST https://whatsapp-general-github.bkpxmb.easypanel.host/webhook/whatsapp/fup/{client_id}`
+- **Status Code Sucesso:** `200 OK`
+- **Path Parameter:** `client_id` (ID do cliente no Supabase Master).
+- **Headers Obrigatórios:**
+  - `X-MindFlow-Token: <TOKEN>` (validado contra `client_configurations.mindflow_api_token`).
+  - `Content-Type: application/json`
+
+#### Body JSON Exemplo
+
+```json
+{
+  "client_id": "2",
+  "phone": "+5548996027108",
+  "custom_context": "Opcional: instrução ou contexto adicional para influenciar a decisão do FUP"
+}
+```
+
+#### Resposta de Sucesso
+
+```json
+{
+  "status": "accepted",
+  "message": "FUP request initiated successfully in background.",
+  "execution_id": "1982855b-291f-4046-9e7d-48416603a21d"
+}
+```
+
+---
+
 ## ⚠️ Tratamento de Erros e Validação
 
 - Caso ocorra falha de validação no modelo Pydantic (`422 Unprocessable Entity`), a API registra a tentativa falha diretamente na tabela `workflow_executions` do Supabase do cliente para rastreabilidade de suporte técnico antes de responder ao remetente.

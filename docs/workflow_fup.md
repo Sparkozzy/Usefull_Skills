@@ -39,6 +39,12 @@ Os passos seguem a convenção de nomenclatura `{workflow_name}_{OQF}` e são ex
   - Com o `prompt_id`, busca o `Prompt_Text` na tabela `Prompts` (Supabase Master / Cliente).
   - Recupera os dados cadastrais do lead na tabela `Leads_Mindflow` e o histórico recente em `n8n_chat_histories`.
 
+### 1.1 `fup_flow_check_inactivity`
+- **Descrição**: Validação preventiva da janela mínima de inatividade do lead (10 minutos / 600 segundos).
+- **Lógica**:
+  - Se a requisição não contiver `custom_context` manual, o sistema calcula o intervalo entre o timestamp atual UTC e a coluna `data ultima msgm` da tabela `Leads_Mindflow`.
+  - Se a diferença for menor que 600 segundos (lead interagiu há menos de 10 minutos), o fluxo é abortado preventivamente com status `SUCCESS` e outcome `lead_interacted_recently_skipped`, evitando perturbar o lead em conversa ativa.
+
 ### 2. `fup_flow_llm_agent`
 - **Descrição**: Processamento da IA determinística mini/micro (`gpt-4o-mini` com temperature baixa ou `gpt-4.1-mini`).
 - **Lógica**:
@@ -61,3 +67,18 @@ Os passos seguem a convenção de nomenclatura `{workflow_name}_{OQF}` e são ex
   - Converte o horário `quando_executar` para datetime UTC.
   - Enfileira a task `execute_scheduled_fup_action` no ARQ (`enqueue_job(..., _defer_until=target_dt)`).
   - Registra a confirmação com o job ID do Redis em `workflow_step_executions`.
+
+---
+
+## 4. Execução Agendada no Worker (`execute_scheduled_fup_action`)
+
+Quando o momento agendado (`_defer_until`) é atingido, o worker ARQ consome o job e executa:
+
+1. **Dupla Checagem de Inatividade:**
+   - Consulta novamente `Leads_Mindflow.data ultima msgm`. Se o lead enviou qualquer mensagem no intervalo entre a decisão e a execução, o envio é cancelado (`cancelled_lead_interacted_recently`).
+2. **Execução Especializada por Canal:**
+   - `agendar_mensagem`: Envio de texto fragmentado humanizado via Z-API (`send_text`).
+   - `audio`: Geração de áudio TTS (`Fish Audio` ou `OpenAI TTS` com voz cadastrada em `voice_id`) e envio via Z-API (`send_audio`).
+   - `figurinha`: Envio de sticker via Z-API (`send-sticker`).
+   - `ligawhats`: Disparo HTTP para `https://call-github.bkpxmb.easypanel.host/call` com canal `whats`.
+   - `ligacao`: Disparo HTTP para `https://call-github.bkpxmb.easypanel.host/webhook` (`pre_call_processing`) com autenticação via header `X-API-Key`, repassando `workflow_name: "fup_flow_ligacao"`, `execution_id`, `numero`, `nome`, `email`, `agent_id`, `Prompt_id` e `contexto`. Retorna status `202 Accepted` delegando a chamada telefônica via Retell AI.

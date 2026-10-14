@@ -29,6 +29,8 @@
           │  • check_availability               │
           │  • schedule_appointment             │
           │  • send_whatsapp_message            │
+          │  • send_whatsapp_document           │
+          │  • make_phone_call                  │
           └────────────────┬───────────────────┘
                            │
               ┌────────────┴────────────┐
@@ -42,7 +44,7 @@
 
 ---
 
-## As 3 Ferramentas MCP
+## As Ferramentas MCP (5 Tools)
 
 ### 1. `check_availability` — Verificar Disponibilidade
 
@@ -123,6 +125,32 @@
 
 ---
 
+### 5. `make_phone_call` — Realizar Ligação Telefônica (Retell AI / Pre-Call)
+
+**Quando usar:** Para disparar ou agendar uma ligação telefônica de voz para o lead através da infraestrutura de IA de voz (`pre_call_processing` / Retell AI).
+
+**O que faz automaticamente:**
+- Envia uma requisição HTTP para o backend `pre_call_processing` (`POST https://call-github.bkpxmb.easypanel.host/webhook`).
+- Gera automaticamente um `execution_id` (UUID) de rastreabilidade se nenhum for fornecido.
+- Permite disparo imediato ou agendamento temporal (`quando_ligar`).
+
+**Parâmetros:**
+
+| Parâmetro | Obrigatório | Tipo | Descrição detalhada para preenchimento |
+|---|---|---|---|
+| `client_id` | **Sim** | string | Identificador numérico do cliente no sistema (ex: `"2"`). |
+| `numero` | **Sim** | string | Telefone do destinatário em formato E.164 iniciado por `+` (ex: `"+5548996027108"`). |
+| `nome` | **Sim** | string | Nome completo do lead/destinatário da ligação. |
+| `email` | Não | string | E-mail do lead. Se não souber, passar string vazia `""`. |
+| `agent_id` | Não | string | ID do agente Retell AI (caso deseje sobrepor o agente padrão do cliente). |
+| `prompt_id` | Não | string | ID ou nome do prompt cadastrado na tabela `Prompts` do Supabase para direcionar a chamada. |
+| `contexto` | Não | string | Resumo detalhado dos pontos discutidos, perfil e desafios do lead para guiar a IA de voz. |
+| `quando_ligar` | Não | string | Timestamp em formato ISO 8601 com offset de fuso horário (ex: `"2026-10-06T18:00:00-03:00"`). Se omitido, a ligação é feita imediatamente. |
+| `from_number` | Não | string | Número de telefone remetente cadastrado na Retell AI que realizará a chamada (ex: `"+5511999998888"`). |
+| `execution_id` | Não | string | UUID de rastreabilidade. Se não for informado, é gerado automaticamente pelo MCP. |
+
+---
+
 ## Padrão de Integração — Python (whatsapp_general) & Arquitetura Multi-MCP
 
 O `whatsapp_general` suporta **múltiplos MCPs dinâmicos por cliente** via Supabase Master:
@@ -178,6 +206,17 @@ Use o nó `MCP Client` apontando para:
       <tool name="send_whatsapp_message">
         Enviar mensagem de confirmação ao lead via WhatsApp (Z-API).
         Parâmetros obrigatórios: client_id, phone, message.
+      </tool>
+      <tool name="send_whatsapp_document">
+        Enviar documento (PDF, DOCX, etc.) ao lead via WhatsApp (Z-API).
+        Parâmetros obrigatórios: client_id, phone, document_url.
+      </tool>
+      <tool name="make_phone_call">
+        Disparar ligação telefônica de voz automatizada via IA (Retell AI).
+        Usar IMEDIATAMENTE quando o lead solicitar ou aceitar ligação telefônica.
+        A tool higieniza e formata o número automaticamente. NUNCA peça ao lead para digitar '+' ou reformatar o telefone.
+        Parâmetros obrigatórios: client_id, numero, nome.
+        Parâmetros opcionais: agent_id, prompt_id, contexto, quando_ligar, from_number.
       </tool>
     </tools>
   </Ferramentas>

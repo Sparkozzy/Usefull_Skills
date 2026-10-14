@@ -71,6 +71,11 @@ Gerencia a configuração global dos clientes cadastrados e credenciais de integ
 | `fallback_llm_model` | `text` | ❌ | Modelo de fallback em caso de degradação da OpenAI (ex: `gpt-4o-mini`). |
 | `fallback_llm_temperature` | `float8` | ❌ | Temperatura do modelo de fallback. |
 | `mcp_urls` | `text[]` ou `jsonb` | ❌ | Lista de URLs dos servidores MCP habilitados para o cliente (ex: `["https://schedule-github.bkpxmb.easypanel.host/mcp", "https://kravi-mcp..."]`). Padrão: URL do `schedule_service`. |
+| `fup` | `boolean` | ❌ | Ativa/desativa automação de Follow-up (FUP) para o cliente. Padrão: `true`. |
+| `fup_ligawhats` | `boolean` | ❌ | Autoriza o agente FUP a agendar chamadas de áudio via WhatsApp. Padrão: `false`. |
+| `fup_ligacao` | `boolean` | ❌ | Autoriza o agente FUP a disparar ligações telefônicas (Retell AI / pre_call). Padrão: `false`. |
+| `quantidade_fup_whats` | `int4` | ❌ | Limite máximo de mensagens de FUP consecutivas sem resposta do lead. Padrão: `3`. |
+| `fup_fds` | `boolean` | ❌ | Permite o envio de FUP aos sábados e domingos. Padrão: `false`. |
 
 ---
 
@@ -496,6 +501,7 @@ lead = supabase.table("Leads_Mindflow")\
 | `Ligação/txt` | `text` | Canal: ligação ou WhatsApp/texto. |
 | `Pormpt_Name` | `text` | Nome identificador do prompt (**typo no banco — respeitar**). |
 | `Prompt Insta` | `text` | Prompt específico para Instagram. |
+| `prompt_fup` | `text` | Template de prompt mestre de Follow-up (FUP) atribuído ao cliente. |
 
 ```python
 # Buscar prompt pelo ID recebido no payload

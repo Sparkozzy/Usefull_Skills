@@ -57,8 +57,14 @@ Os seguintes passos (nós) formam o workflow `whatsapp_flow`:
   - Se diferentes, interrompe silenciosamente a execução atual (pois uma nova execução posterior processará o novo lote de mensagens).
 
 ### 10. `whatsapp_flow_fetch_prompt`
-- **Descrição**: Busca as diretrizes/prompts de sistema para o agente.
-- **Lógica**: Lê o `prompt_id` associado ao cliente em `client_configurations` (Supabase Master) e faz a consulta ao banco do cliente na tabela `Prompts` pelo ID correspondente.
+- **Descrição**: Busca as diretrizes/prompts de sistema para o agente e injeta as variáveis mutáveis em tempo de execução.
+- **Lógica**: Lê o `prompt_id` associado ao cliente em `client_configurations` (Supabase Master) e faz a consulta ao banco do cliente na tabela `Prompts` pelo ID correspondente. Interpola as tags de template `{{$now}}` e `{{number}}` com a data/hora atual de Brasília (`America/Sao_Paulo`) e o telefone do lead, e anexa ao final do prompt a seção delimitada:
+  ```xml
+  <informações_mutáveis>
+  Horario atual (brasilia): 05/10/2026 11:40:00
+  Número de celular: +5511999998888
+  </informações_mutáveis>
+  ```
 
 ### 11. `whatsapp_flow_llm_response`
 - **Descrição**: Geração da resposta contextualizada utilizando LLM (GPT-4o-mini / GPT-4).
