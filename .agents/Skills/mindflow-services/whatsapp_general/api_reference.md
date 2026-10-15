@@ -6,7 +6,7 @@ O microserviço `whatsapp_general` é a plataforma multi-tenant de atendimento c
 
 ## 🌐 Base URL
 
-- **Ambiente de Produção (Easypanel):** `https://whatsapp-github.bkpxmb.easypanel.host`
+- **Ambiente de Produção (Easypanel):** `https://whatsapp-general-github.bkpxmb.easypanel.host`
 - **Ambiente Local (Desenvolvimento):** `http://localhost:8000`
 
 ---
