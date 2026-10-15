@@ -9,3 +9,4 @@ Todos os repositórios abaixo fazem parte da estrutura da MindFlow. Todos estão
 - whatsapp_general: https://github.com/Sparkozzy/whatsapp_general.git
 - call_predict: https://github.com/Sparkozzy/call_predict.git
 - usefull_skills: https://github.com/Sparkozzy/Usefull_Skills.git
+- prompt_ops: https://github.com/Sparkozzy/Prompt_ops.git
