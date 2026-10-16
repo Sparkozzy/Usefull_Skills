@@ -56,8 +56,10 @@ graph TD
      - **Score >= 90%:** Versão recebe o status `approved` e o botão **Publicar em Produção** é liberado.
      - **Score < 90%:** O deploy é **bloqueado**. O engenheiro deve ajustar o prompt e reexecutar a bateria.
 
-5. **Deploy Atômico em Produção:**
-   - Ao acionar `POST /api/v1/prompts/publish`, a API atualiza a coluna correspondente da linha existente no Supabase Master sem alterar o ID do cliente nem quebrar dependências de webhooks externos.
+5. **Deploy Atômico e Sincronização em Produção:**
+   - Ao acionar `POST /api/v1/prompts/publish`:
+     - A API atualiza o texto do prompt na coluna correspondente da linha existente na tabela `Prompts` do Supabase Master (`Prompt_Text`, `"Ligação/txt"`, `prompt_fup`, `"Prompt Insta"`).
+     - **Sincronização de Modelo e Temperatura:** Atualiza automaticamente os parâmetros `llm_model` e `llm_temperature` correspondentes na tabela `client_configurations` do Supabase Master para o cliente, garantindo que o `whatsapp_general` e demais serviços executem em produção com a mesma LLM e hiperparâmetros validados na suite de evals.
 
 ---
 
