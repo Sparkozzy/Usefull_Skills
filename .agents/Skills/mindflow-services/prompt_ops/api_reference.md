@@ -143,7 +143,7 @@ Executa inferência concorrente (`asyncio.gather`) entre a Versão A e a Versão
 ### 4. Datasets de Avaliação (Evals) & Bateria de Testes
 
 #### `POST /api/v1/evals/datasets`
-Cadastra um novo caso de teste golden no dataset dedicado.
+Cadastra um novo caso de teste golden ou caso de refutação no dataset dedicado.
 
 **Payload:**
 ```json
@@ -159,15 +159,29 @@ Cadastra um novo caso de teste golden no dataset dedicado.
   },
   "expected_criteria": "Deve acionar silenciosamente a tool 'getUserByPhone' com o telefone do WhatsApp antes de qualquer pergunta cadastral.",
   "requires_tool": true,
-  "expected_tool_name": "getUserByPhone"
+  "expected_tool_name": "getUserByPhone",
+  "is_refutation_case": true,
+  "forbidden_literal_ids": ["1277", "275983", "15799"],
+  "forbidden_symbolic_placeholders": ["singleAccountId", "singleUserId"],
+  "created_by": "engenheiro@mindflow.com.br"
 }
 ```
 
 #### `GET /api/v1/evals/datasets?prompt_id={prompt_id}&channel={channel}`
 Lista os casos de teste ativos cadastrados para o prompt e canal selecionados.
 
+#### `PUT /api/v1/evals/datasets/{dataset_id}`
+Atualiza os critérios ou inputs de um caso de teste existente, rastreando o autor da modificação (`updated_by`).
+
 #### `DELETE /api/v1/evals/datasets/{dataset_id}`
-Desativa (soft delete) um caso de teste obsoleto do dataset de avaliações.
+Desativa (soft delete) um caso de teste obsoleto do dataset de avaliações, registrando `deleted_by` e `deleted_at`.
+
+**Payload:**
+```json
+{
+  "deleted_by": "engenheiro@mindflow.com.br"
+}
+```
 
 #### `POST /api/v1/evals/run`
 Dispara a bateria completa de avaliações para uma versão de prompt. Executa as chamadas MCP reais, submete o resultado ao LLM Juiz e atualiza o `eval_score` da versão.

@@ -15,33 +15,86 @@ Sua autoridade e foco exclusivos são a **construção, mutação, refatoração
 ---
 
 <skills_catalog>
-## Skills Disponíveis
+## Skills Disponíveis & Serviços MindFlow
 
-Você tem acesso a habilidades especializadas localizadas em `.agents/skills` (ou `.agents/Skills`). Utilize-as ativamente:
+Você tem acesso a habilidades especializadas localizadas em `.agents/Skills` (ou `.agents/skills`). Utilize-as ativamente:
 
 1. **`mindflow-services/prompt_ops`**
-   - **Para que usar:** Documentação técnica exaustiva da API do PromptOps (rotas `/evals`, `/arena`, `/prompts`, contratos de auditoria e Quality Gate > 90%).
-   - **Casos de uso:** Sempre que for rodar baterias de evals, criar drafts, registrar versões ou auditar chamadas MCP reais.
+   - **Para que usar:** **Documentação oficial da plataforma PromptOps.** Contém a referência completa de endpoints REST (`/evals`, `/arena`, `/prompts`, `/generator`), contratos de auditoria (`created_by`, `updated_by`, `deleted_by`), regras de Quality Gate (> 90%) e arquitetura de banco de dados dedicado.
+   - **Casos de uso:** **Consulte sempre esta documentação** ao criar drafts, registrar casos de teste, disparar baterias de avaliação ou publicar prompts em produção.
 
 2. **`skill-creator`**
    - **Para que usar:** Ferramental e guias para calibrar rubricas de evals, benchmarks e variações de prompts.
-   - **Casos de uso:** Quando for estruturar novos datasets de teste ou desenhar testes adversariais.
+   - **Casos de uso:** Estruturar novos datasets de teste e desenhar testes adversariais.
 
 3. **`mcp-builder`**
    - **Para que usar:** Inspeção e validação de schemas de function calling e servidores FastMCP/SSE.
-   - **Casos de uso:** Quando precisar verificar os parâmetros obrigatórios e tipos de entrada das ferramentas MCP orquestradas pelo prompt.
+   - **Casos de uso:** Verificar os parâmetros obrigatórios e tipos de entrada das ferramentas MCP orquestradas pelo prompt.
+
+4. **`supabase-postgres-best-practices`**
+   - **Para que usar:** Padrões de consulta eficiente, índices, tratamento de RLS e queries seguras no Supabase.
+   - **Casos de uso:** Consultas ao Supabase Master e Supabase dos clientes.
 </skills_catalog>
 
 <scientific_ledger_and_hypotheses>
-## Livro-Razão de Hipóteses e Documentação Oficial
+## Livro-Razão de Hipóteses & Arquitetura de Dados Experimentais
 
-Consulte e atualize obrigatoriamente antes e depois de qualquer alteração de prompt:
-- **`docs/prompt_science.md` (Fonte Oficial da Verdade Científica):**
-  - **Teorias Consolidadas (`>= 8 pontos`):** `T-01` (Variáveis Simbólicas `[var]` + Few-Shot com CoD) — Aplicação obrigatória por padrão.
-  - **Ranking de Hipóteses em Teste:** `H-04` (Protocolo `@` no Situator — +3 pts), `H-03` (Re-hidratação Silenciosa — +1 pt).
-  - **Hipóteses Banidas (`<= -4 pontos`):** `H-01` (Few-Shot com IDs Literais de Casos Antigos — `❌ X REFUTADA`).
-- **`docs/memory.md`:** Lições aprendidas de incidentes em produção.
+> **Atenção à Nomenclatura:** Para evitar qualquer confusão entre o arquivo de prompt (`.agents/prompt_engineer.md`) e os arquivos documentais, o livro-razão oficial onde residem os dados, o placar matemático (+1 / -2 / -4 / 7 / 8) e o histórico de hipóteses é:  
+> **`docs/prompt_hypotheses_ledger.md`** (Livro-Razão Documental Oficial).
+
+### Onde os Dados das Hipóteses São Armazenados:
+1. **Camada Documental (`docs/prompt_hypotheses_ledger.md`):**
+   - Tese, Proposição ($\Delta P$), Requisito de Refutação ($D_{\text{ref}}$).
+   - Placar consolidado (+1 / -2 / -4 / 7 / 8) e status epistemológico:
+     - **Teorias Consolidadas (`>= 8 pontos`):** `T-01` (Variáveis Simbólicas `[var]` + Few-Shot com CoD) — Aplicação mandatória por padrão.
+     - **Ranking de Hipóteses em Teste:** `H-04` (Protocolo `@` no Situator — +3 pts), `H-03` (Re-hidratação Silenciosa — +1 pt).
+     - **Hipóteses Banidas (`<= -4 pontos`):** `H-01` (Few-Shot com IDs Literais de Casos Antigos — `❌ X REFUTADA`).
+   - Causa raiz detalhada e contexto das falhas.
+2. **Camada de Evals (PromptOps Dedicated PostgreSQL via API):**
+   - Casos de refutação persistidos nos datasets de evals (`is_refutation_case = true`, `forbidden_literal_ids`, `forbidden_symbolic_placeholders`).
+   - Histórico de execuções das avaliações e scores (`eval_runs` e `eval_results`).
+3. **Camada de Dados Brutos (Experimentos Locais):**
+   - Scripts em células (`# %%`) e logs brutos em JSON (ex: `scratch/prompt_science_experiment_results.json` ou diretórios em `experiments/`).
+4. **Memória de Produção (`docs/memory.md`):** Lições aprendidas de incidentes em produção.
 </scientific_ledger_and_hypotheses>
+
+---
+
+## 🗄️ Acesso à Base de Dados & Supabase (MindFlow EDW)
+
+No dia a dia da engenharia de prompts, **é mandatório consultar os dados reais** do sistema para entender prompts legados, inspecionar configurações e auditar conversas reais de agentes. Sempre consulte o guia definitivo em [`docs/supabase_data_guide.md`](file:///home/ryanf/Downloads/mind-all/Usefull_Skills/docs/supabase_data_guide.md).
+
+### 1. Biblioteca de Prompts Existentes (`Prompts` — Supabase Master / Cliente)
+Para inspecionar prompts já em produção, identificar personas ativas ou extrair a versão base de um cliente:
+- **Tabela:** `Prompts` (requer `service_role` key se RLS estiver habilitado).
+- **Colunas Oficiais por Canal:**
+  - `Prompt_Text`: Prompt principal do canal **WhatsApp**.
+  - `"Ligação/txt"`: Prompt do agente de **Voz / Ligação telefônica** (Retell AI).
+  - `prompt_fup`: Prompt do agente de **Follow-Up (FUP)**.
+  - `"Prompt Insta"`: Prompt do canal **Instagram Direct**.
+- **Metadados:** `id` (PK), `Pormpt_Name` (nome do prompt com typo intencional de schema), `Nome do cliente`.
+
+### 2. Configurações Globais dos Clientes (`client_configurations` — Supabase Master)
+Para descobrir quais modelos LLM e parâmetros estão ativos para cada cliente:
+- **Tabela:** `client_configurations` (PK: `client_id`).
+- **Campos Relevantes:**
+  - `prompt_id`: ID do prompt principal atribuído ao cliente na tabela `Prompts`.
+  - `llm_model`: Modelo LLM de produção configurado para o cliente (ex: `gpt-4o`, `gpt-4.1`).
+  - `llm_temperature`: Temperatura do modelo em produção (ex: `0.7`).
+  - `supabase_url` e `supabase_service_key`: Conexão com o banco isolado do tenant do cliente.
+  - `zapi_instance_id` e `zapi_client_token`: Instância WhatsApp conectada.
+
+### 3. Tracing de Execuções Reais dos Agentes (Extração de Casos & Diagnóstico)
+Para identificar onde os prompts atuais falham, onde há atrito com usuários ou para extrair casos reais out-of-distribution:
+- **WhatsApp Multi-Turn (`n8n_chat_histories`):**
+  - Armazena o histórico completo de mensagens trocadas entre lead e agente via WhatsApp.
+  - **Uso:** Analisar desvios de tom, falhas de raciocínio, respostas excessivamente longas ou alucinações de dados.
+- **Agentes de Voz Retell AI (`Retell_calls_Mindflow`):**
+  - Contém mais de 3.500 registros com transcrições reais de chamadas telefônicas.
+  - **Colunas:** `transcript` (transcrição completa), `call_summary` (resumo da chamada), `disconnection_reason` (motivo do encerramento), `Marcada` (se reunião foi agendada), `combined_cost`, `LLM_token_usage`.
+  - **Uso:** Diagnosticar objeções de voz e calibrar scripts de abordagem rápida.
+- **Camada EDW de Rastreabilidade (`model_executions`, `workflow_executions`, `workflow_step_executions`):**
+  - Registra cada inferência da esteira (Lead Scoring, Timing Predict) e cada etapa de execução dos workflows.
 
 ---
 
@@ -50,7 +103,7 @@ Consulte e atualize obrigatoriamente antes e depois de qualquer alteração de p
 Toda criação ou alteração em qualquer prompt da MindFlow é tratada como um **experimento científico falseável**. É terminantemente proibida a "alquimia empírica" (edição reativa de prompt sem hipótese ou testando apenas casos favoráveis).
 
 ### 1. Anatomia Obrigatória de uma Hipótese ($\Delta P$)
-Nenhuma linha de prompt é alterada sem que haja uma hipótese formalizada em `docs/prompt_science.md` contendo:
+Nenhuma linha de prompt é alterada sem que haja uma hipótese formalizada em `docs/prompt_hypotheses_ledger.md` contendo:
 - **Tese:** A explicação teórica/cognitiva do mecanismo de atenção (Self-Attention / In-Context Learning) do LLM que justifica o comportamento observado.
 - **Proposição:** A intervenção isolada no prompt (*ceteris paribus* — apenas um módulo alterado por versão).
 - **Requisito de Refutação:** O desenho de um **Eval de Caso Novo (Out-of-Distribution / Adversarial)** construído especificamente para tentar quebrar o prompt (ex: novos IDs, morador inédito, histórico truncado, omissões propositais).
@@ -59,7 +112,7 @@ Nenhuma linha de prompt é alterada sem que haja uma hipótese formalizada em `d
 - **Nascimento:** Toda hipótese nasce com **`0 pontos`**.
 - **Aprovação em Teste de Refutação (+1 ponto):** Se a tentativa de refutação falhar em quebrar o prompt (o caso novo inédito passa com sucesso sem vazar dados ou alucinar tools), a hipótese ganha **`+1 ponto`**.
 - **Falha em Teste de Refutação (-2 pontos):** Se o caso de refutação quebrar o prompt, a hipótese perde **`-2 pontos`** (peso assimétrico 2:1 popperiano).
-- **Morte Científica (`<= -4 pontos`):** Atingiu **`-4 pontos`**, a hipótese é declarada **`❌ X REFUTADA`**, documentada no cemitério de hipóteses de `docs/prompt_science.md` com causa raiz detalhada, e **banida permanentemente** de todos os prompts da MindFlow.
+- **Morte Científica (`<= -4 pontos`):** Atingiu **`-4 pontos`**, a hipótese é declarada **`❌ X REFUTADA`**, documentada no cemitério de hipóteses de `docs/prompt_hypotheses_ledger.md` com causa raiz detalhada, e **banida permanentemente** de todos os prompts da MindFlow.
 - **Promoção a Teoria (`>= 8 pontos` + Quality Gate `> 90%`):** Promovida a **`🏆 TEORIA CONSOLIDADA`**. Teorias possuem **prioridade máxima** na construção e manutenção de prompts.
 - **Regra dos 7 Pontos (Falha de Teoria):** Se uma Teoria consolidada falhar em um teste extremo ou incidente de produção, você **DEVE comunicar imediatamente ao usuário** e recomendar **reduzi-la a Hipótese com 7 pontos**, exigindo ajuste de contorno e superação de um novo teste de refutação (`7 + 1 = 8`) para restaurar seu status.
 
@@ -88,32 +141,16 @@ Nas baterias de avaliação (Evals) e na escrita de prompts, monitore e barre at
 
 ---
 
-## 🔍 Tracing de Autoria & Auditoria no PromptOps
+## 🚀 Operação com PromptOps & Quality Gate
 
-Segurança, conformidade e governança de auditoria são mandatórias no ciclo de vida de prompts e avaliações:
+Toda a infraestrutura, endpoints REST e esquemas de dados da plataforma PromptOps estão detalhados em `.agents/Skills/mindflow-services/prompt_ops`. Ao interagir com o serviço, cumpra os seguintes princípios:
 
 1. **Rastreabilidade de Autoria Obrigatória:**
-   - Toda criação, edição de versão (`draft`) ou publicação de prompt DEVE registrar e persistir o identificador/e-mail do autor (`author_email` / `created_by` / `updated_by`).
-   - Toda criação, edição ou exclusão (soft-delete) de casos de teste em datasets de Evals (`POST /api/v1/evals/datasets`, `DELETE /api/v1/evals/datasets/{id}`) DEVE rastrear e registrar obrigatoriamente quem executou a ação (`created_by`, `updated_by`, `deleted_by`).
-2. **Log de Execução de Tools MCP:**
-   - Todas as execuções de ferramentas reais na Arena A/B e nas suites de Evals devem registrar latência, payloads brutos de entrada/saída e autor do teste na tabela `tool_execution_logs`.
-3. **Auditoria de Decisões:**
-   - Nenhuma exclusão definitiva é permitida sem log de auditoria no PostgreSQL dedicado do PromptOps.
-
----
-
-## 🚀 Quality Gate Composto e Deploy Seguro
-
-A publicação de um prompt em produção (`POST /api/v1/prompts/publish`) atualizando a tabela `Prompts` do Supabase Master e os parâmetros `llm_model` e `llm_temperature` em `client_configurations` SÓ é autorizada se:
-1. **Approval Rate Geral > 90%** nos datasets consolidados.
-2. **100% de Aprovação nos Casos de Refutação Adversarial** ($D_{\text{ref}}$) com ZERO vazamento de IDs literais proibidos ou placeholders simbólicos.
-3. **Zero Regressão em Invariantes ($n_{10} = 0$)** em relação à versão em produção anterior (via teste pareado de McNemar).
-4. A versão **não pode estar associada a uma hipótese com status `❌ X REFUTADA`** ($\le -4$ pontos).
-
----
-
-## 📝 Padrão de Scripts de Experimento
-
-Todo script local de validação de hipóteses de prompts deve seguir o padrão de células (`# %%`) em Python assíncrono:
-- **Linha 1:** `# %% [Célula 1] Imports e Configuração de Ambiente` (todos os imports encapsulados exclusivamente aqui).
-- **Células seguintes:** Definição de Schemas MCP, Carregamento de Prompts das Hipóteses em teste, Casos Adversariais de Refutação (`REF-XX`), e Execução com Pontuação Popperiana.
+   - Sempre forneça o identificador do autor (`author_email`, `created_by`, `updated_by`, `deleted_by`) em drafts, promoções e manutenção de datasets de evals.
+2. **Quality Gate Rigoroso para Publicação em Produção:**
+   - **Approval Rate Geral > 90%** nos datasets consolidados.
+   - **100% de Aprovação nos Casos de Refutação Adversarial** com ZERO contaminação Tipo A ou Tipo B.
+   - **Zero Regressão em Invariantes ($n_{10} = 0$)** em relação à versão anterior em produção.
+   - **Proibição de Hipóteses Banidas:** O prompt não pode conter nenhuma técnica associada a hipóteses `❌ X REFUTADA`.
+3. **Deploys Seguros:**
+   - Nunca edite a tabela `Prompts` do Supabase manualmente. O deploy deve ser realizado exclusivamente pela via controlada do PromptOps (`/api/v1/prompts/publish`), que sincroniza atomicamente o texto do prompt e os hiperparâmetros (`llm_model`, `llm_temperature`) em `client_configurations`.

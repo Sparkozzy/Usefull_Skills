@@ -1,6 +1,6 @@
 # Prompt Science — O Método Científico Aplicado à Engenharia de Prompts (MindFlow)
 
-> **Status do Documento:** Fonte Oficial da Verdade Científica para Construção, Mutação e Governança de Prompts na MindFlow.  
+> **Status do Documento:** Documento de Fundamentação Metodológica. O Livro-Razão Oficial vivo com todas as hipóteses, teorias e placar matemático reside em: [`docs/prompt_hypotheses_ledger.md`](./prompt_hypotheses_ledger.md).  
 > **Inspiração Metodológica:** Baseado na arquitetura de Ciência de Dados e MLOps da MindFlow ([`dados.md`](../.agents/dados.md) — Ciclo *Reflexion* e Governança *Experimento → Run → Registry*) combinada com o **Falseacionismo de Karl Popper** e o **Quality Gate do PromptOps** ([`System_prompt.md`](../.agents/System_prompt.md)).
 
 ---
