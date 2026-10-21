@@ -1,0 +1,81 @@
+<memoria_ativa versao="1.0" escopo="prompts_de_clientes_tabela_prompts">
+
+  <regras_de_geracao>
+    <!-- Regras descobertas ou confirmadas sobre como gerar bons prompts
+         de clientes para a MindFlow (tabela Prompts). Classificadas por tipo. -->
+    <regra tipo="IMUTAVEL" id="R001">
+      Todo prompt de cliente deve declarar explicitamente persona, contexto,
+      formato de output e critério de encerramento.
+    </regra>
+    <regra tipo="IMUTAVEL" id="R002">
+      Estrutura de output sempre em XML ou Markdown conforme padrão
+      da empresa. Nunca misturar os dois no mesmo bloco.
+    </regra>
+    <regra tipo="IMUTAVEL" id="R003_T01" origem="docs/prompt_hypotheses_ledger.md#T-01">
+      Isolamento de Estado por Variáveis Simbólicas: Todo prompt de cliente que acione
+      ferramentas MCP deve declarar um bloco &lt;variaveis&gt; com ponteiros simbólicos
+      entre colchetes (ex: [singleUserId], [singleAccountId], [unitId]) e jamais conter
+      IDs numéricos literais de casos antigos nos exemplos ou regras.
+    </regra>
+    <regra tipo="MUTAVEL" id="R004_H04" ultima_atualizacao="2026-10-21">
+      Em integrações com APIs que rejeitam null/vazio (ex: Situator), explicitar por
+      contraste sintático o uso de '@' para campos não aplicáveis em vez de null, None ou "".
+    </regra>
+    <regra tipo="MUTAVEL" id="R005_H03" ultima_atualizacao="2026-10-21">
+      Guardrail de Re-hidratação Silenciosa: Proibir o envio do nome literal da variável
+      simbólica (ex: "singleAccountId") para a tool se o valor numérico não constar no
+      histórico da sessão, forçando a execução prévia da tool de identificação (getUserByPhone).
+    </regra>
+  </regras_de_geracao>
+
+  <padroes_de_briefing>
+    <!-- Padrões recorrentes nos briefings de clientes da MindFlow. -->
+    <padrao id="P001" frequencia="alta">
+      Agentes multicanal (WhatsApp em Prompt_Text, Voz/Retell em "Ligação/txt",
+      Follow-Up em prompt_fup e Instagram em "Prompt Insta") que exigem mensagens
+      curtas, humanizadas e acionamento silencioso de ferramentas MCP via SSE.
+    </padrao>
+  </padroes_de_briefing>
+
+  <erros_registrados>
+    <!-- Erros cometidos em gerações anteriores. Nunca apagar —
+         apenas marcar como resolvido. -->
+    <erro id="E001" status="aberto" data="2026-10-20" ref_hipotese="H-01">
+      Seção afetada: &lt;few_shot_declarado&gt; e regras de tools.
+      Descrição: Inserir exemplos reais de casos antigos com IDs literais (ex: accountId=1277,
+      userId=275983, unitId=15799).
+      Causa raiz: Anchoring bias no mecanismo de Self-Attention do LLM, causando vazamento
+      cruzado de dados entre moradores/clientes (Contaminação Tipo A).
+    </erro>
+    <erro id="E002" status="aberto" data="2026-10-20" ref_hipotese="REF-01">
+      Seção afetada: &lt;variaveis&gt; e &lt;chamada_ferramenta&gt;.
+      Descrição: Modelo enviar o nome textual do placeholder ("singleAccountId") como argumento
+      da tool quando o histórico está truncado sem o retorno prévio de getUserByPhone (Contaminação Tipo B).
+      Causa raiz: Falta de cláusula explícita de fallback para re-hidratar estado quando o ponteiro simbólico é nulo.
+    </erro>
+  </erros_registrados>
+
+  <preferencias>
+    <!-- Tom, formato, estilo e preferências confirmadas pelo usuário. -->
+    <preferencia tipo="tom" confirmada="sim">
+      Direto, técnico, sem rodeios na especificação das regras; empático, conciso e natural na fala voltada ao cliente final (limite de até 200 caracteres por balão no WhatsApp).
+    </preferencia>
+    <preferencia tipo="markdown" confirmada="nao">
+      Headers H2 para seções apenas quando o prompt for puramente Markdown; evitar misturar com blocos XML.
+    </preferencia>
+    <preferencia tipo="xml" confirmada="sim">
+      Tags semânticas em snake_case ou CamelCase padronizado (&lt;GlobalSettings&gt;, &lt;variaveis&gt;, &lt;persona&gt;, &lt;ferramentas_MCP&gt;, &lt;few_shot_declarado&gt;) com atributos para metadados.
+    </preferencia>
+    <preferencia tipo="cadeias_de_pensamento" confirmada="sim">
+      Chain of Draft (CoD) interno (&lt;raciocinio_interno_cod&gt;) estritamente conectado à resolução de variáveis e decisão da chamada de ferramenta ou output, nunca decorativo ou flutuante.
+    </preferencia>
+  </preferencias>
+
+  <melhorias_propostas>
+    <!-- Melhorias sugeridas pelo usuário ainda não implementadas. -->
+    <melhoria id="M001" status="pendente" data="2026-10-21">
+      Calibrar templates específicos por canal da tabela Prompts (diferenciando restrições acústicas de Ligação/Retell vs. formatação visual de WhatsApp).
+    </melhoria>
+  </melhorias_propostas>
+
+</memoria_ativa>

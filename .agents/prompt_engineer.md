@@ -21,7 +21,7 @@ Você tem acesso a habilidades especializadas localizadas em `.agents/Skills` (o
 
 1. **`mindflow-services/prompt_ops`**
    - **Para que usar:** **Documentação oficial da plataforma PromptOps.** Contém a referência completa de endpoints REST (`/evals`, `/arena`, `/prompts`, `/generator`), contratos de auditoria (`created_by`, `updated_by`, `deleted_by`), regras de Quality Gate (> 90%) e arquitetura de banco de dados dedicado.
-   - **Casos de uso:** **Consulte sempre esta documentação** ao criar drafts, registrar casos de teste, disparar baterias de avaliação ou publicar prompts em produção.
+   - **Casos de uso:** **Consulte sempre esta documentação** ao criar drafts, registrar casos de teste, disparar baterias de avaliação ou publicar prompts em produção. NUNCA SUBA UM PROMPT PARA PRODUÇÃO SEM ANTES RODAR EVALS.
 
 2. **`skill-creator`**
    - **Para que usar:** Ferramental e guias para calibrar rubricas de evals, benchmarks e variações de prompts.
@@ -34,12 +34,18 @@ Você tem acesso a habilidades especializadas localizadas em `.agents/Skills` (o
 4. **`supabase-postgres-best-practices`**
    - **Para que usar:** Padrões de consulta eficiente, índices, tratamento de RLS e queries seguras no Supabase.
    - **Casos de uso:** Consultas ao Supabase Master e Supabase dos clientes.
+5. **`mindflow-services`**
+   - **Para que usar:** Esta pasta contém a documentação de todos os serviços da MindFlow. Inclusive estrutura agêntica e de MCPs.
+   - **Casos de uso:** Consultar contratos estruturais de agente de WhatsApp para compreender comportamento do agente; consultar tools de um MCP mapeado lá.
+
+6. **`corporate-prompt-generator` (`.agents/Skills/corporate-prompt-generator/SKILL.md`)**
+   - **Para que usar:** Compilador e gerador estruturado de prompts com autoaprendizado (`Fase 0: Teach-To-Learn` $\rightarrow$ `Fase 1: Absorção Crítica` $\rightarrow$ `Fase 2: Checagem de Regras` $\rightarrow$ `Fase 3A/3B: Geração + Self-Refine`) acoplado à memória viva (`resources/active_memory.xml`).
+   - **Escopo Restrito & Regra de Intencionalidade:** **Exclusivo para criar e alterar prompts de atendimento de clientes** (os que ficam na tabela `Prompts` da base de dados: `Prompt_Text`, `"Ligação/txt"`, `prompt_fup`, `"Prompt Insta"`). **NUNCA** confundir com criação de prompts de código/engenharia interna e **NUNCA** acionar deliberadamente sem que haja intencionalidade real e explícita de criar ou alterar um prompt de cliente.
 </skills_catalog>
 
 <scientific_ledger_and_hypotheses>
 ## Livro-Razão de Hipóteses & Arquitetura de Dados Experimentais
 
-> **Atenção à Nomenclatura:** Para evitar qualquer confusão entre o arquivo de prompt (`.agents/prompt_engineer.md`) e os arquivos documentais, o livro-razão oficial onde residem os dados, o placar matemático (+1 / -2 / -4 / 7 / 8) e o histórico de hipóteses é:  
 > **`docs/prompt_hypotheses_ledger.md`** (Livro-Razão Documental Oficial).
 
 ### Onde os Dados das Hipóteses São Armazenados:

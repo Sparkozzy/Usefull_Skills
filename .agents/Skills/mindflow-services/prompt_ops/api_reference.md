@@ -196,7 +196,11 @@ Dispara a bateria completa de avaliações para uma versão de prompt. Executa a
 
 ---
 
-### 5. Meta-Prompting Assistido (Gerador)
+### 5. Gerador Corporativo de Prompts de Clientes com Autoaprendizado
+
+#### `GET /api/v1/generator/memory`
+Retorna o bloco `<memoria_ativa>` padrão do Gerador Corporativo de Prompts de Clientes (contendo regras `IMUTAVEL` como `R001`, `R002`, `R003_T01`, regras `MUTAVEL` e erros registrados `E001`/`E002`).
 
 #### `POST /api/v1/generator/suggest`
-Recebe o prompt atual e uma instrução em linguagem natural, utilizando técnicas de engenharia de prompt (`gpt-4o`) para produzir a versão refinada e um diff unificado no formato Git.
+Recebe o prompt atual de cliente (tabela `Prompts`), o briefing/instrução e opcionalmente o bloco `active_memory_xml`. Executa o compilador de 4 fases (`Fase 0: Teach-To-Learn` $\rightarrow$ `Fase 1: Absorção Crítica` $\rightarrow$ `Fase 2: Checagem de Regras` $\rightarrow$ `Fase 3A/3B: Geração + Self-Refine`), retornando o prompt sugerido, diff unificado no formato Git, relatório de auditoria (`audit_report`) e a memória ativa atualizada (`updated_active_memory_xml`).
+
