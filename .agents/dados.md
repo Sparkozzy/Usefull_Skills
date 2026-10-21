@@ -57,6 +57,7 @@ Sempre consulte antes de agir e atualize após modificações:
 -   `conventions.md`: Regras de codificação e padrões EDW do projeto.
 -   `supabase_data_guide.md`: Estrutura de tabelas, schemas, tipos de dados e queries padrão. **Consulte ANTES de escrever qualquer query ao banco.**
 -   `memory.md`: Registro de lições aprendidas (self-reflection). Criado e mantido por você.
+-   `prompt_science.md`: Registro científico oficial de Engenharia de Prompts (Teorias, Ranking de Hipóteses com Tese/Proposição/Refutação e Hipóteses `X REFUTADA`).
 
 ### Skills Disponíveis (pasta `.agents/skills/`)
 

@@ -48,18 +48,31 @@ graph TD
    - Todos os inputs, outputs e latências das tools são auditados na tabela `tool_execution_logs`.
 
 4. **Bateria de Avaliações (Evals) & Quality Gate:**
-   - A versão é submetida a uma bateria de casos de teste automatizados (cenários de atendimento, objeções reais e testes de ativação mandatória de tools).
+   - A versão é submetida a uma bateria de casos de teste automatizados (cenários de atendimento, objeções reais, ativação mandatória de tools e testes adversariais de refutação).
    - O **LLM Juiz** avalia de forma estrita e determinística:
      - Se o caso exigia uma ferramenta específica (ex: `check_availability` ou `getUserByPhone`) e ela não foi chamada ou foi chamada incorretamente, o caso é **automaticamente reprovado**.
+     - **Detector de Contaminação:** Se os argumentos da tool vazarem IDs literais antigos (Contaminação Tipo A) ou strings de placeholders simbólicos não resolvidos (Contaminação Tipo B), o caso é reprovado deterministicamente.
      - A resposta gerada é validada contra a rubrica de critérios esperados.
    - É calculado o índice de aprovação (`approval_rate`):
-     - **Score >= 90%:** Versão recebe o status `approved` e o botão **Publicar em Produção** é liberado.
+     - **Score >= 90%:** Versão recebe o status `approved` e o botão **Publicar em Produção** é liberado, desde que 100% dos testes de refutação passem sem contaminação.
      - **Score < 90%:** O deploy é **bloqueado**. O engenheiro deve ajustar o prompt e reexecutar a bateria.
 
 5. **Deploy Atômico e Sincronização em Produção:**
    - Ao acionar `POST /api/v1/prompts/publish`:
      - A API atualiza o texto do prompt na coluna correspondente da linha existente na tabela `Prompts` do Supabase Master (`Prompt_Text`, `"Ligação/txt"`, `prompt_fup`, `"Prompt Insta"`).
      - **Sincronização de Modelo e Temperatura:** Atualiza automaticamente os parâmetros `llm_model` e `llm_temperature` correspondentes na tabela `client_configurations` do Supabase Master para o cliente, garantindo que o `whatsapp_general` e demais serviços executem em produção com a mesma LLM e hiperparâmetros validados na suite de evals.
+     - **Auditoria & Tracing:** Registra o e-mail do autor responsável pela promoção em produção.
+
+---
+
+## 🔍 Tracing de Autoria e Auditoria de Ações
+
+Para garantir compliance operacional e evitar alterações fantasmas em prompts e datasets:
+1. **Prompts e Versões:** Todo draft criado (`POST /api/v1/prompts/versions`) e toda promoção a produção (`POST /api/v1/prompts/publish`) exige e persiste `author_email`.
+2. **Datasets de Evals:**
+   - Criação (`POST /api/v1/evals/datasets`): obrigatoriedade do campo `created_by` (e-mail do engenheiro/usuário).
+   - Edição (`PUT /api/v1/evals/datasets/{id}`): obrigatoriedade do campo `updated_by` e timestamp de alteração.
+   - Exclusão (`DELETE /api/v1/evals/datasets/{id}`): soft-delete com preenchimento obrigatório de `deleted_by` e `deleted_at`.
 
 ---
 
