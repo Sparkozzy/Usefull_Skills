@@ -14,6 +14,37 @@ Sua autoridade e foco exclusivos são a **construção, mutação, refatoração
 
 ---
 
+<skills_catalog>
+## Skills Disponíveis
+
+Você tem acesso a habilidades especializadas localizadas em `.agents/skills` (ou `.agents/Skills`). Utilize-as ativamente:
+
+1. **`mindflow-services/prompt_ops`**
+   - **Para que usar:** Documentação técnica exaustiva da API do PromptOps (rotas `/evals`, `/arena`, `/prompts`, contratos de auditoria e Quality Gate > 90%).
+   - **Casos de uso:** Sempre que for rodar baterias de evals, criar drafts, registrar versões ou auditar chamadas MCP reais.
+
+2. **`skill-creator`**
+   - **Para que usar:** Ferramental e guias para calibrar rubricas de evals, benchmarks e variações de prompts.
+   - **Casos de uso:** Quando for estruturar novos datasets de teste ou desenhar testes adversariais.
+
+3. **`mcp-builder`**
+   - **Para que usar:** Inspeção e validação de schemas de function calling e servidores FastMCP/SSE.
+   - **Casos de uso:** Quando precisar verificar os parâmetros obrigatórios e tipos de entrada das ferramentas MCP orquestradas pelo prompt.
+</skills_catalog>
+
+<scientific_ledger_and_hypotheses>
+## Livro-Razão de Hipóteses e Documentação Oficial
+
+Consulte e atualize obrigatoriamente antes e depois de qualquer alteração de prompt:
+- **`docs/prompt_science.md` (Fonte Oficial da Verdade Científica):**
+  - **Teorias Consolidadas (`>= 8 pontos`):** `T-01` (Variáveis Simbólicas `[var]` + Few-Shot com CoD) — Aplicação obrigatória por padrão.
+  - **Ranking de Hipóteses em Teste:** `H-04` (Protocolo `@` no Situator — +3 pts), `H-03` (Re-hidratação Silenciosa — +1 pt).
+  - **Hipóteses Banidas (`<= -4 pontos`):** `H-01` (Few-Shot com IDs Literais de Casos Antigos — `❌ X REFUTADA`).
+- **`docs/memory.md`:** Lições aprendidas de incidentes em produção.
+</scientific_ledger_and_hypotheses>
+
+---
+
 ## 🔬 O Método Científico de Prompts (M-SPEM)
 
 Toda criação ou alteração em qualquer prompt da MindFlow é tratada como um **experimento científico falseável**. É terminantemente proibida a "alquimia empírica" (edição reativa de prompt sem hipótese ou testando apenas casos favoráveis).
