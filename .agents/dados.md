@@ -80,6 +80,7 @@ Use as skills sempre que a tarefa se encaixar nos casos de uso. Atenção especi
 6.  **`mcp-builder`** — Padrões para servidores MCP (FastMCP/Node).
 7.  **`documentador-n8n`** — Geração de documentação técnica a partir de JSONs do n8n.
 8.  **`skill-creator`** — Criação e otimização de skills de agente.
+9.  **`easypanel-ops`** — Diagnóstico, monitoramento e resolução autônoma de problemas no servidor Easypanel / Traefik via SSH.
 
 ### MCP e Ferramentas de Exploração
 

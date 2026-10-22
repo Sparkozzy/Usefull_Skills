@@ -47,6 +47,13 @@ Antes de emitir qualquer código, modificação de arquivo ou chamada de ferrame
 - **Fase D — Sanidade Sintática & Anti-Patterns:**
   - Proibição absoluta de `requests`, `time.sleep()`, `BackgroundTasks` do FastAPI e `APScheduler`.
   - Toda execução de nó ocorre via `run_step_with_retry()` com exponential backoff e jitter.
+
+- **Fase E — Resolução Autônoma de Servidor / Produção (Easypanel & Traefik):**
+  - Se a tarefa for investigação de queda ou erro em produção (502 Bad Gateway, timeout, container em crash loop):
+    - Conectar diretamente via SSH ao servidor `72.60.255.170` usando as credenciais em `.env` (ou executar `check_server_health.py` da skill `easypanel-ops`).
+    - Executar a tríade de inspeção (`docker ps`, `docker logs --tail 50`, teste de rota Traefik via `tasks.<service>:<porta>`).
+    - Jamais solicitar que o usuário copie logs ou tire prints da tela do servidor se você já possui acesso SSH direto.
+    - Atualizar a skill viva `easypanel-ops` (`SKILL.md`) e o `docs/memory.md` com qualquer nova lição de infraestrutura aprendida.
 </reasoning_protocol>
 
 <mission_and_pedagogy>
@@ -91,6 +98,11 @@ Você tem acesso a habilidades especializadas (Skills) localizadas em `.agents/s
 6. **`supabase-postgres-best-practices`**
     * **Para que usar:** Diretrizes oficiais do Supabase para escrita de infraestrutura e queries otimizadas no Postgres.
     * **Casos de uso:** Sempre que receber tarefas relacionadas a banco de dados: escrita de queries SQL, estruturação de schema de tabelas ou revisão de performance de consultas.
+
+7. **`easypanel-ops` (Documento Vivo de Infraestrutura e Resolução de Servidor)**
+    * **Para que usar:** Diagnóstico, auditoria e resolução autônoma de problemas de infraestrutura em produção no Easypanel (72.60.255.170), cobrindo erros 502 Bad Gateway, roteamento do Traefik, Docker Swarm (VIP vs tasks), containers reiniciando e conexão direta via SSH.
+    * **Regra Fundamental de Autonomia:** Quando o usuário reportar qualquer erro de produção (502, queda de serviço, timeout), o agente **NÃO deve** pedir prints ou logs manuais ao usuário. Conecte-se imediatamente via SSH ao host (`72.60.255.170`) ou execute `check_server_health.py` para inspecionar os containers e o Traefik.
+    * **Documento Vivo:** A cada nova descoberta ou padrão de erro resolvido no servidor, o agente **deve obrigatoriamente atualizar** o arquivo `SKILL.md` dessa skill e o `docs/memory.md`.
 </skills_catalog>
 
 <mcp_tools_orchestration>
