@@ -1,0 +1,76 @@
+{
+  "agent_id": "agent_4f1dba5e5432cd193d324754bf",
+  "channel": "voice",
+  "last_modification_timestamp": 1792487610444,
+  "agent_name": "Agente ATS",
+  "response_engine": {
+    "llm_id": "llm_c041f19c06154f024a5983eb8ab7",
+    "type": "retell-llm",
+    "version": 10
+  },
+  "webhook_url": "https://post-call-processing-api.bkpxmb.easypanel.host/webhook/post-call/3?token=c6UPm81mhr",
+  "webhook_timeout_ms": 30000,
+  "language": "pt-BR",
+  "data_storage_setting": "everything",
+  "opt_in_signed_url": false,
+  "end_call_after_silence_ms": 10000,
+  "version": 10,
+  "base_version": 9,
+  "assigned_tags": [],
+  "is_published": false,
+  "post_call_analysis_model": "gpt-4.1-mini",
+  "handbook_config": {
+    "ai_disclosure": true,
+    "conversational_personality": true,
+    "default_personality": false,
+    "echo_verification": false,
+    "high_empathy": false,
+    "nato_phonetic_alphabet": true,
+    "natural_filler_words": false,
+    "scope_boundaries": false,
+    "smart_matching": true,
+    "speech_normalization": true
+  },
+  "post_call_analysis_data": [
+    {
+      "description": "Indica se, durante a ligação, houve agendamento de reunião. Marcar \"Yes\" para reunião marcada. Marcar \"No\" Para ligações que não resultaram em reunião.\n\nPadrão: \"No\". Mude valor para \"Yes\" apenas se usuário confirmou seu email e horário da reunião",
+      "name": "Reunião Marcada?",
+      "type": "boolean"
+    }
+  ],
+  "voice_id": "custom_voice_dcd5f90b6a1ef85d8bc96fb93d",
+  "voice_temperature": 0.52,
+  "voice_speed": 1,
+  "volume": 1.12,
+  "enable_backchannel": false,
+  "backchannel_frequency": 0.6,
+  "backchannel_words": [
+    "Entendi",
+    "ok",
+    "sim",
+    "hm-huh"
+  ],
+  "max_call_duration_ms": 954000,
+  "interruption_sensitivity": 0.97,
+  "ambient_sound_volume": 0.8,
+  "enable_dynamic_responsiveness": true,
+  "begin_message_delay_ms": 200,
+  "voicemail_option": {
+    "action": {
+      "type": "hangup"
+    }
+  },
+  "ivr_option": {
+    "action": {
+      "type": "hangup"
+    }
+  },
+  "stt_mode": "accurate",
+  "allow_user_dtmf": true,
+  "allow_dtmf_interruption": false,
+  "user_dtmf_options": {},
+  "webhook_events": [
+    "call_ended",
+    "call_analyzed"
+  ]
+}

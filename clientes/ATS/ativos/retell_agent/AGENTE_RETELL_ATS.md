@@ -1,0 +1,130 @@
+# Agente Retell AI - ATS
+
+- **Agent ID:** agent_4f1dba5e5432cd193d324754bf
+- **Agent Name:** Agente ATS
+- **Voice ID:** custom_voice_dcd5f90b6a1ef85d8bc96fb93d
+- **Model:** None
+- **Language:** pt-BR
+- **Volume / Speed:** None / 1
+- **LLM Websocket / ID:** llm_c041f19c06154f024a5983eb8ab7
+
+---
+
+## LLM Configuration (llm_c041f19c06154f024a5983eb8ab7)
+
+- **Model:** gpt-4.1
+- **General Prompt:**
+
+```text
+<Informações variáveis>
+Timezone America/Sao_Paulo (UTC-03:00)
+data/hora atual: {{ now }}  No formato ISO 8601 completo com data, hora, milissegundos e fuso horário. YYYY-MM-DDTHH:mm:ss.sss±HH:mm.
+
+Nome do lead: {{ customer_name }}
+
+Nome da empresa do lead: {{empresa}}
+
+Email do lead: {{ email }}
+
+numero do lead: {{ numero_do_lead }}
+
+</Informações variáveis>
+
+
+<contexto>
+{{ contexto }}
+</contexto>
+
+<system_prompt>
+{{prompt}}
+</system_prompt>
+
+
+```
+
+---
+
+## Tools / Functions do Agente:
+```json
+[
+  {
+    "description": "Finaliza a ligação de forma natural e respeitosa. Deve ser usada para encerrar a conversa com o lead quando não há mais ações a serem tomadas naquele momento.",
+    "execution_message_description": "",
+    "execution_message_type": "prompt",
+    "name": "end_call",
+    "speak_after_execution": true,
+    "speak_during_execution": false,
+    "type": "end_call"
+  },
+  {
+    "delay_ms": 1000,
+    "description": "Acione esta ferramenta IMEDIATAMENTE quando a ligação cair em um menu eletrônico (URA/IVR) que exige a digitação de opções.\n\nDiretrizes de Execução:\n1. FOCO COMERCIAL: Escute as opções e envie o dígito correspondente à \"Vendas\", \"Comercial\", ou \"Falar com Atendente\".\n2. SILÊNCIO ABSOLUTO: Ao acionar esta tool, NUNCA gere respostas em áudio (ex: não diga \"Vou teclar 1\"). Apenas execute a ferramenta em silêncio.\n3. VELOCIDADE: Acione o dígito no exato momento em que identificar a opção correta. Não espere a voz eletrônica terminar de listar as outras opções.\n4. CONTINGÊNCIA: Se o menu repetir a mesma mensagem, assuma que o dígito não foi computado e envie novamente mais rápido. Se nenhuma opção fizer sentido para o nosso objetivo, tecle \"9\" ou \"0\" (padrão para falar com telefonistas/humanos).\n",
+    "name": "Anti-URA",
+    "speak_after_execution": true,
+    "type": "press_digit"
+  },
+  {
+    "description": "\n    Verifica se existem slots de 1 hora disponíveis na agenda do cliente no período informado.\n    Antes de consultar o Google Calendar do cliente, verifica se cai em finais de semana ou feriados nacionais do Brasil.\n    \n    Args:\n        client_id: ID do cliente cadastrado no Supabase Master (ex: 'cliente-a').\n        data_inicial: Data/hora de início da janela de busca (ISO 8601 com fuso horário).\n        data_final: Data/hora de fim da janela de busca (ISO 8601 com fuso horário).\n        \n    Returns:\n        JSON string contendo o status de disponibilidade geral e a lista detalhada de slots.\n    ",
+    "enable_typing_sound": false,
+    "execution_message_description": "",
+    "execution_message_type": "prompt",
+    "mcp_id": "mcp-1785786406414",
+    "name": "check_availability",
+    "response_variables": {},
+    "speak_after_execution": true,
+    "speak_during_execution": false,
+    "type": "mcp"
+  },
+  {
+    "description": "\n    Registra uma solicitação de agendamento de reunião de forma assíncrona.\n    Valida as informações, inicia o fluxo de rastreabilidade (PENDING) no Supabase do cliente\n    e envia o processamento pesado de agendamento (Google Calendar, WhatsApp) para a fila Redis.\n    \n    Args:\n        client_id: ID do cliente cadastrado no Supabase Master (ex: 'cliente-a').\n        nome: Nome completo do lead.\n        email: E-mail do lead.\n        numero: Telefone de contato no formato internacional E.164 (ex: '+5548996027108').\n        canal: Canal de origem do contato (deve ser 'whats' ou 'ligacao').\n        data_agendamento: Data e hora desejadas para o agendamento (ISO 8601 com fuso horário).\n        titulo: Título opcional para o evento do calendário.\n        resumo: Resumo opcional dos desafios discutidos com o lead.\n        agent_id: ID opcional do agente de IA que originou o agendamento.\n        \n    Returns:\n        JSON string contendo os detalhes do status do agendamento aceito e o ID da execução para rastreio.\n    ",
+    "enable_typing_sound": false,
+    "execution_message_description": "",
+    "execution_message_type": "prompt",
+    "mcp_id": "mcp-1785786406414",
+    "name": "schedule_appointment",
+    "response_variables": {},
+    "speak_after_execution": true,
+    "speak_during_execution": false,
+    "type": "mcp"
+  },
+  {
+    "description": "\n    Envia uma mensagem de texto (follow-up de fechamento do pedido) via WhatsApp usando a gateway Z-API.\n    Executa a normalização do telefone e registra logs de auditoria no padrão EDW.\n    \n    Args:\n        client_id: ID do cliente cadastrado no Supabase Master (ex: 'cliente-a').\n        phone: Número do lead (ex: '+5541995252559' ou '554195252559').\n        message: Texto da mensagem de confirmação para mandar para o lead.\n        execution_id: ID único de execução opcional para rastreabilidade (UUID string).\n        agent_id: ID opcional do agente de IA que originou o disparo.\n        \n    Returns:\n        JSON string contendo o resultado do envio ou erro.\n    ",
+    "enable_typing_sound": false,
+    "execution_message_description": "",
+    "execution_message_type": "prompt",
+    "mcp_id": "mcp-1785786406414",
+    "name": "send_whatsapp_message",
+    "response_variables": {},
+    "speak_after_execution": true,
+    "speak_during_execution": false,
+    "type": "mcp"
+  },
+  {
+    "description": "\n    Dispara ou agenda uma ligação telefônica automatizada por voz (Retell AI) enviando uma requisição para o microserviço 'pre_call_processing'.\n    \n    ### QUANDO UTILIZAR ESTA FERRAMENTA:\n    Utilize esta ferramenta sempre que for necessário realizar um contato telefônico ou agendar uma chamada por voz com um lead/cliente.\n    \n    ### PARÂMETROS E REGRAS DE PREENCHIMENTO:\n    \n    - **client_id** (string, OBRIGATÓRIO):\n      Identificador único do cliente no Supabase Master (ex: 'cliente-a', 'mindflow').\n      \n    - **numero** (string, OBRIGATÓRIO):\n      Número de telefone do destinatário.\n      **INSTRUÇÃO CRÍTICA PARA A LLM**: A ferramenta aceita números com ou sem o sinal de '+'. A própria tool irá higienizar e formatar o '+' automaticamente. **NUNCA peça ao lead para digitar o '+' ou reformatar o próprio telefone**; informe o número do remetente da sessão ou o número informado pelo lead diretamente.\n      \n    - **nome** (string, OBRIGATÓRIO):\n      Nome completo do lead/paciente destinatário da chamada (ex: 'João Silva').\n      \n    - **email** (string, OPCIONAL):\n      Endereço de e-mail do destinatário. Se não houver e-mail disponível, passar '.' ou string vazia (padrão é '.').\n      \n    - **agent_id** (string, OPCIONAL):\n      Identificador do agente de voz configurado na Retell AI (ex: 'agent_1e4cfa23e3910c557d82167949'). Se omitido, o pre_call_processing usará o agente padrão do cliente.\n      \n    - **prompt_id** (string, OPCIONAL):\n      Identificador do prompt/roteiro cadastrado na tabela 'Prompts' do Supabase (ex: '24' ou 'prompt_qualificacao').\n      \n    - **contexto** (string, OPCIONAL):\n      Resumo dos pontos discutidos, perfil e desafios do lead para guiar a IA de voz durante a ligação.\n      \n    - **quando_ligar** (string, OPCIONAL):\n      Data e hora em que a ligação deve ser realizada.\n      **REGRA DE FORMATO**: Deve ser uma string ISO 8601 contendo obrigatoriamente o offset de timezone (ex: '2026-10-06T18:00:00-03:00').\n      Se omitido ou nulo, a ligação será disparada imediatamente.\n      \n    - **from_number** (string, OPCIONAL):\n      Número remetente cadastrado na plataforma de voz Retell AI para efetuar a chamada (ex: '+5511999998888').\n      \n    - **execution_id** (string, OPCIONAL):\n      ID único de rastreabilidade (UUID string). Se não for fornecido, um novo UUID será gerado automaticamente.\n      \n    Returns:\n        JSON string contendo o resultado da requisição (status e execution_db_id no pre_call_processing) ou mensagem de erro detalhada.\n    ",
+    "enable_typing_sound": false,
+    "execution_message_description": "",
+    "execution_message_type": "prompt",
+    "mcp_id": "mcp-1785786406414",
+    "name": "make_phone_call",
+    "response_variables": {},
+    "speak_after_execution": true,
+    "speak_during_execution": false,
+    "type": "mcp"
+  },
+  {
+    "description": "\n    Envia um documento (PDF, DOCX, XLSX, etc.) via WhatsApp usando a gateway Z-API através de um link/URL pública.\n    Executa a normalização do telefone e registra logs de auditoria no padrão EDW.\n    \n    Args:\n        client_id: ID do cliente cadastrado no Supabase Master (ex: 'cliente-a').\n        phone: Número do lead (ex: '+5541995252559' ou '554195252559').\n        document_url: Link público (HTTP/HTTPS) do documento a ser enviado.\n        extension: Extensão do arquivo (padrão 'pdf', podendo ser 'docx', 'xlsx', etc.).\n        file_name: Nome opcional do arquivo a ser exibido no WhatsApp (ex: 'Proposta_Comercial.pdf').\n        caption: Descrição/legenda opcional em texto acompanhando o documento.\n        message_id: ID da mensagem que se deseja responder.\n        delay_message: Delay em segundos (1 a 15) antes do envio.\n        execution_id: ID único de execução opcional para rastreabilidade (UUID string).\n        agent_id: ID opcional do agente de IA que originou o disparo.\n        \n    Returns:\n        JSON string contendo o resultado do envio (zaapId, messageId) ou erro.\n    ",
+    "enable_typing_sound": false,
+    "execution_message_description": "",
+    "execution_message_type": "prompt",
+    "mcp_id": "mcp-1785786406414",
+    "name": "send_whatsapp_document",
+    "response_variables": {},
+    "speak_after_execution": true,
+    "speak_during_execution": false,
+    "type": "mcp"
+  }
+]
+```
+
+## Begin Message
+`None`
